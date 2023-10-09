@@ -2,7 +2,9 @@ package com.example.datencechatbotapp.api
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.google.gson.JsonObject
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -13,26 +15,32 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 import java.io.FileOutputStream
+import java.net.URL
 import java.util.concurrent.TimeUnit
 
 
 object RetrofitClient {
     private const val BASE_URL =
-        "https://4988-2409-4089-2e0d-6cc4-4cb1-c6f-a0fc-aa23.ngrok-free.app"
-
-    val okhttpClient = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .writeTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .build()
-
-    private val retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
-        .client(okhttpClient)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
+        "https://fea7-14-139-198-165.ngrok-free.app/"
 
     fun create(java: Class<ChatbotApi>): ChatbotApi {
+        val okhttpClient = OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .addInterceptor{
+                Log.d("URL", it.request().url.toString())
+                it.proceed(it.request())
+
+            }
+            .build()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(okhttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
         return retrofit.create(ChatbotApi::class.java)
     }
 }
@@ -59,5 +67,31 @@ class FileUploadViewModel : ViewModel() {
         inputStream.close()
 
         return file
+    }
+
+    suspend fun uploadPdfLink(link : URL): Response<JsonObject> {
+        val linkObj = JsonObject()
+        linkObj.addProperty("url", link.toString())
+        Log.d("LINKPDF", linkObj.toString())
+        return chatbotApi.uploadLink(linkObj)
+    }
+
+
+    suspend fun changeUsername(name : String) : Response<JsonObject> {
+        val jsonObject = JsonObject()
+        jsonObject.addProperty("username", name)
+        return chatbotApi.changeUsername(jsonObject)
+    }
+
+
+
+    suspend fun getAllCases(): Response<JsonObject> {
+        return chatbotApi.getAllCases()
+    }
+    suspend fun getUserName(): Response<JsonObject> {
+        return chatbotApi.getUsername()
+    }
+    suspend fun getProfilePicture(): Response<JsonObject> {
+        return chatbotApi.getProfilePicture()
     }
 }

@@ -1,50 +1,44 @@
 package com.example.datencechatbotapp.api
 
+import com.google.gson.JsonObject
 import okhttp3.MultipartBody
 import org.json.JSONObject
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.HTTP
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 
 interface ChatbotApi {
-    @Multipart
-    @POST("/uploadAnswers?userId=sanepike")
-    suspend fun uploadAnswers(
-        @Part filePart: MultipartBody.Part
-    ) : Response<JSONObject>
+    @POST("uploadAnswers?userId=sanepike")
+    suspend fun uploadAnswers(answers : JsonObject): Response<JsonObject>
 
     @Multipart
-    @POST("/uploadFile?userId=sanepike")
+    @POST("uploadFile?userId=sanepike")
     suspend fun uploadPdf(
         @Part filePart: MultipartBody.Part
-    ) : Response<JSONObject>
+    ): Response<JSONObject>
 
     @Multipart
-    @POST("/changeProfilePicture?userId=sanepike")
+    @POST("changeProfilePicture?userId=sanepike")
     suspend fun changeProfilePicture(
         @Part filePart: MultipartBody.Part
-    ) : Response<JSONObject>
+    ): Response<JsonObject>
+
+    @POST("uploadLink?userId=sanepike")
+    suspend fun uploadLink(link: JsonObject) : Response<JsonObject>
+
+    @POST("changeUsername?userId=sanepike")
+    suspend fun changeUsername(@Body username: JsonObject) : Response<JsonObject>
 
 
-    @POST("/uploadLink?userId=sanepike")
-    suspend fun uploadLink(link : JSONObject)
+    @GET("getAllCases?userId=sanepike")
+    suspend fun getAllCases(): Response<JsonObject>
 
-    @POST("/changeUsername?userId=sanepike")
-    suspend fun changeUsername(username : JSONObject)
+    @GET("getUsername?userId=sanepike")
+    suspend fun getUsername(): Response<JsonObject>
 
-
-
-
-
-    @GET("/getAllCases?userId=sanepike")
-    suspend fun getAllCases(): Response<JSONObject>
-
-    @GET("/getUsername?userId=sanepike")
-    suspend fun getUsername(): Response<JSONObject>
-
-    @GET("/getProfilePicture?userId=sanepike")
-    suspend fun getProfilePicture(): Response<HTTP>
+    @GET("getProfilePicture?userId=sanepike")
+    suspend fun getProfilePicture(): Response<JsonObject>
 }

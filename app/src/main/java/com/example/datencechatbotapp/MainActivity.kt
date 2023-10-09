@@ -34,7 +34,7 @@ fun App() {
     }
     DatenceChatbotAppTheme(theme.value){
         val navController = rememberNavController()
-        NavHost(navController = navController, startDestination = "question") {
+        NavHost(navController = navController, startDestination = "upload") {
             composable(route = "signup") {
                 Signup()
             }

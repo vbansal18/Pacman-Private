@@ -50,6 +50,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.datencechatbotapp.R
 import com.example.datencechatbotapp.api.FileUploadViewModel
 import com.example.datencechatbotapp.screens.components.TxtField
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 @Preview(showSystemUi = true, showBackground = true)
@@ -57,6 +58,9 @@ import kotlinx.coroutines.launch
 fun UploadFiles(
 
 ) {
+    var link = remember {
+        mutableStateOf("")
+    }
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -179,8 +183,15 @@ fun UploadFiles(
                     RoundedCornerShape(10.dp)
                 )
                 .padding(horizontal = 20.dp, vertical = 14.dp),
-            hintColor = Color(0xFF656565)
-        )
+            hintColor = Color(0xFF656565),
+            )
+        val viewModel = viewModel<FileUploadViewModel>()
+        Button(onClick = { upload(viewModel)}, modifier = Modifier
+            .padding(20.dp)
+            .fillMaxWidth()
+            .padding(20.dp)) {
+            Text(text = "Submit")
+        }
     }
 
 }
@@ -248,3 +259,17 @@ fun PdfFilePickerAndUploader(
     }
 }
 
+fun upload(viewModel: FileUploadViewModel){
+    GlobalScope.launch {
+        try
+        {
+            val link = viewModel.uploadPdfLink("https://docs.google.com/document/d/1XbqeyXD7HRt0sDL7E_bub8AqJGm7b_eluNf8wwdwiwY/edit")
+            if(link.isSuccessful){
+                Log.d("SUCCESS_LINK", link.body().toString())
+            }
+        }
+        catch (e:Exception){
+            Log.d("ERROR", e.message.toString())
+        }
+    }
+}
