@@ -1,7 +1,9 @@
 package com.example.datencechatbotapp
 
-var AllQuestions = mutableListOf<Question>(
-    Question(
+import com.example.datencechatbotapp.models.QuestionItem
+
+var AllQuestionItems = mutableListOf<QuestionItem>(
+    QuestionItem(
         1,
         "What is the type of data you want to collect?",
         mutableMapOf(
@@ -18,7 +20,7 @@ var AllQuestions = mutableListOf<Question>(
             ("Social Media Information" to false),
         )
     ),
-    Question(
+    QuestionItem(
         2,
         "Who are the data subjects?",
         mutableMapOf(
@@ -33,7 +35,7 @@ var AllQuestions = mutableListOf<Question>(
             ("Website Visitors" to false),
         )
     ),
-    Question(
+    QuestionItem(
         4,
         "What is the purpose of data collection?",
         mutableMapOf(
@@ -50,7 +52,7 @@ var AllQuestions = mutableListOf<Question>(
             ("Social Media Engagement" to false),
         )
     ),
-    Question(
+    QuestionItem(
         7,
         "Does your company have a special mechanism to handle personal/sensitive data?",
         mutableMapOf(
@@ -67,7 +69,7 @@ var AllQuestions = mutableListOf<Question>(
             ("Consent for Automated Decision-Making" to false),
         )
     ),
-    Question(
+    QuestionItem(
         8,
         "Does your company have a mechanism in place to securely store data?",
         mutableMapOf(
@@ -83,7 +85,7 @@ var AllQuestions = mutableListOf<Question>(
             ("Patch Management" to false),
         )
     ),
-    Question(
+    QuestionItem(
         9,
         "Does your company have procedures to assess and mitigate privacy risks in product or service development?",
         mutableMapOf(

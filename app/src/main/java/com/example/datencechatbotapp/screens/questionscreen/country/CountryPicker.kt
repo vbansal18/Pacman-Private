@@ -4,6 +4,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -88,8 +89,9 @@ fun CountryRow(name: String, flag_url: String) {
             modifier = Modifier
                 .weight(.2f)
                 .padding(end = 30.dp)
-                .clip(CircleShape)
-                .border(2.dp, Color.White, CircleShape)
+                .aspectRatio(1f)
+                .background(Color.White, RoundedCornerShape(50.dp))
+                .padding(1.dp)
         )
     }
     Divider(modifier = Modifier.fillMaxWidth(), thickness = Dp.Hairline)

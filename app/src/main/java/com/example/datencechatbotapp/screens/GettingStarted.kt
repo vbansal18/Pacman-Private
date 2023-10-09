@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,14 +39,15 @@ fun GetStartedScreen() {
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color.White,
-                        Color(205, 237, 107, 255)
+                        MaterialTheme.colorScheme.tertiary,
+                        MaterialTheme.colorScheme.tertiary,
+                        MaterialTheme.colorScheme.primary,
                     )
                 )
             )
             .padding(20.dp)
             .background(
-                Color(241, 241, 241, 255), RoundedCornerShape(40.dp)
+                MaterialTheme.colorScheme.onSecondary, RoundedCornerShape(40.dp)
             )
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -61,7 +63,8 @@ fun GetStartedScreen() {
                 contentDescription = "KeyboardArrowLeft",
                 modifier = Modifier
                     .padding(top = 15.dp)
-                    .size(30.dp)
+                    .size(30.dp),
+                tint = MaterialTheme.colorScheme.surface
             )
 
         }
@@ -81,13 +84,14 @@ fun GetStartedScreen() {
             text = "PacMan: Your AI legal guide, swiftly tackling hurdles for your dream projects",
             fontSize = 15.sp,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(28.dp, 8.dp)
+            modifier = Modifier.padding(28.dp, 8.dp),
+            color = MaterialTheme.colorScheme.surface
 
         )
         Row(
             modifier = Modifier
                 .padding(top = 80.dp)
-                .background(Color.White, RoundedCornerShape(24.dp))
+                .background(MaterialTheme.colorScheme.onTertiary, RoundedCornerShape(26.dp))
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically

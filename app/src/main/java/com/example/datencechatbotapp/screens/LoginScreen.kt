@@ -8,16 +8,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
@@ -46,23 +50,22 @@ import com.example.datencechatbotapp.screens.components.TxtField
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun Login() {
-
     Column(
         modifier = Modifier
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color.Black, Color.Black, Color(0xFFDCFE73)
+                        MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.primary
                     )
                 )
             )
-            .padding(2.dp, 8.dp, 2.dp, 8.dp)
+            .padding(8.dp)
             .paint(
                 painterResource(id = R.drawable.bg_home_screen),
                 contentScale = ContentScale.FillBounds,
-                colorFilter = ColorFilter.tint(Color(0xFF272727)),
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.background),
             )
-            .padding(20.dp),
+            .padding(horizontal = 8.dp, vertical = 20.dp),
 
         ) {
 
@@ -87,7 +90,7 @@ fun Login() {
                     style = TextStyle(
                         fontSize = 24.sp,
                         fontWeight = FontWeight(500),
-                        color = Color(0xFFFFFFFF),
+                        color = MaterialTheme.colorScheme.surface,
                     ),
                 )
                 Image(
@@ -99,42 +102,42 @@ fun Login() {
 
             }
             TxtField(
-                tintColor = Color(0xFF8B8B8B),
+                tintColor = MaterialTheme.colorScheme.surfaceVariant,
                 hint = "Email Address",
                 icn = R.drawable.baseline_mail_24,
-                hintColor = Color(0xFFD1F26E),
+                hintColor = MaterialTheme.colorScheme.surfaceTint,
                 modifier = Modifier
                     .padding(top = 15.dp)
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
                     .background(
-                        Color(56, 56, 56, 255),
+                        MaterialTheme.colorScheme.background,
                         RoundedCornerShape(10.dp)
                     )
                     .border(
                         width = 1.dp,
-                        color = Color(0xFFE6E6E6),
+                        color = MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(size = 10.dp)
                     )
                     .padding(horizontal = 20.dp, vertical = 10.dp),
 
                 )
             TxtField(
-                tintColor = Color(0xFF8B8B8B),
+                tintColor = MaterialTheme.colorScheme.surfaceVariant,
                 hint = "Password",
                 icn = R.drawable.baseline_lock_24,
-                hintColor = Color(0xFFD1F26E),
+                hintColor = MaterialTheme.colorScheme.surfaceTint,
                 modifier = Modifier
                     .padding(top = 15.dp)
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
                     .background(
-                        Color(56, 56, 56, 255),
+                        MaterialTheme.colorScheme.background,
                         RoundedCornerShape(10.dp)
                     )
                     .border(
                         width = 1.dp,
-                        color = Color(0xFFE6E6E6),
+                        color = MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(size = 10.dp)
                     )
                     .padding(horizontal = 20.dp, vertical = 10.dp),
@@ -158,24 +161,24 @@ fun Login() {
                         modifier = Modifier
                             .scale(0.8f),
                         colors = CheckboxDefaults.colors(
-                            checkedColor = Color(0xFFD1F26E),
-                            uncheckedColor = Color(0xFFF0F0F0),
+                            checkedColor = MaterialTheme.colorScheme.primary,
+                            uncheckedColor = MaterialTheme.colorScheme.surface,
                             checkmarkColor = Color.Black
                         )
                     )
                     Text(
                         text = "Remember Password",
-                        fontSize = 12.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight(400),
-                        color = Color(0xFFF0F0F0),
+                        color = MaterialTheme.colorScheme.surface,
                     )
                 }
                 Text(
                     text = "Forgot your password?",
-                    fontSize = 12.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight(600),
                     textDecoration = TextDecoration.Underline,
-                    color = Color(0xFFF0F0F0),
+                    color = MaterialTheme.colorScheme.surfaceTint,
                     modifier = Modifier.padding(start = 20.dp)
                 )
             }
@@ -193,7 +196,7 @@ fun Login() {
         ) {
             Button(
                 onClick = { /*TODO*/ },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD1F26E)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 contentPadding = PaddingValues(
                     start = 34.dp,
                     top = 12.dp,
@@ -240,7 +243,10 @@ fun Login() {
                         modifier = Modifier
                             .size(60.dp)
                             .padding(8.dp, 0.dp, 8.dp, 0.dp)
-                    )
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(500.dp)),
+
+                        )
                     Image(
                         painter = painterResource(id = R.drawable.instagram),
                         contentDescription = "fb logo",
@@ -248,6 +254,8 @@ fun Login() {
                         modifier = Modifier
                             .size(60.dp)
                             .padding(8.dp, 0.dp, 8.dp, 0.dp)
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(500.dp)),
 
                     )
                     Image(
@@ -257,8 +265,11 @@ fun Login() {
                         modifier = Modifier
                             .size(60.dp)
                             .padding(8.dp, 0.dp, 8.dp, 0.dp)
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(500.dp)),
 
-                    )
+
+                        )
                     Image(
                         painter = painterResource(id = R.drawable.linkedin),
                         contentDescription = "fb logo",
@@ -266,8 +277,11 @@ fun Login() {
                         modifier = Modifier
                             .size(60.dp)
                             .padding(8.dp, 0.dp, 8.dp, 0.dp)
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(500.dp)),
 
-                    )
+
+                        )
 
                 }
             }

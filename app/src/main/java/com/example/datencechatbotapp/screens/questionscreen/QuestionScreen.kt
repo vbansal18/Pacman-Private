@@ -18,40 +18,32 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.datencechatbotapp.Question
+import com.example.datencechatbotapp.models.QuestionItem
 import com.example.datencechatbotapp.R
 
 //@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun QuestionScreen(
-    question: Question,
+    questionItem: QuestionItem,
 ) {
     Column(
         modifier = Modifier
@@ -64,9 +56,8 @@ fun QuestionScreen(
 //                )
 //            )
 //            .padding(20.dp)
-            .shadow(4.dp, RoundedCornerShape(21.dp, 21.dp, 40.dp, 40.dp))
             .background(
-                Color.White, RoundedCornerShape(40.dp)
+                MaterialTheme.colorScheme.onTertiary, RoundedCornerShape(40.dp)
             ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -80,12 +71,11 @@ fun QuestionScreen(
                 modifier = Modifier
                     .shadow(
                         8.dp,
-                        RoundedCornerShape(21.dp),
-                    )
+                        RoundedCornerShape(bottomStart = 21.dp, bottomEnd = 21.dp),                    )
                     .fillMaxWidth()
                     .fillMaxHeight(0.8f)
                     .background(
-                        Color(217, 251, 114, 255), RoundedCornerShape(21.dp)
+                        Color(217, 251, 114, 255), RoundedCornerShape(bottomStart = 21.dp, bottomEnd = 21.dp)
                     ),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start,
@@ -104,15 +94,16 @@ fun QuestionScreen(
                 contentAlignment = Alignment.BottomCenter
             ) {
                 Text(
-                    text = "${question.questionNumber}/9",
+                    text = "${questionItem.questionNumber}/9",
                     modifier = Modifier
                         .shadow(
                             6.dp,
                             CircleShape,
                         )
                         .clip(CircleShape)
-                        .background(Color.White)
-                        .padding(20.dp)
+                        .background(MaterialTheme.colorScheme.tertiary)
+                        .padding(20.dp),
+                    color = MaterialTheme.colorScheme.surface
                 )
             }
         }
@@ -125,10 +116,11 @@ fun QuestionScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "${question.question}",
+                text = "${questionItem.question}",
                 fontSize = 20.sp,
                 fontWeight = FontWeight(600),
                 textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.surface
             )
         }
 
@@ -146,7 +138,7 @@ fun QuestionScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight(1f)
-                        .background(Color.White),
+                        .background(MaterialTheme.colorScheme.onTertiary),
                     contentAlignment = Alignment.TopCenter
                 ) {
                     Image(
@@ -156,20 +148,21 @@ fun QuestionScreen(
                             .fillMaxWidth(0.6f)
                             .aspectRatio(1f)
                     )
-                    BottomSheet(question.tags)
+                    BottomSheet(questionItem.tags)
                 }
             }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(1f)
-                    .background(Color(241, 241, 241, 255)),
+                    .background(MaterialTheme.colorScheme.onBackground),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Bottom
             ) {
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .padding(50.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
@@ -188,89 +181,90 @@ fun QuestionScreen(
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowRight,
                             contentDescription = "DoneBtn",
-                            tint = Color.Gray,
+                            tint = Color.Black,
                             modifier = Modifier.size(40.dp),
                         )
                     }
                 }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-
-                ) {
-                    // Creating a variable to store the TextField value
-                    var value by remember { mutableStateOf(TextFieldValue("")) }
-
-                    // Creating a Basic TextField bu adding
-                    // innerTextField that will display the Text hint
-                    BasicTextField(
-                        value = value,
-                        textStyle = TextStyle(
-                            color = Color.DarkGray,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight(300),
-                        ),
-                        onValueChange = { value = it },
-                        decorationBox = { innerTextField ->
-                            Row(
-                                Modifier
-                                    .fillMaxWidth(1f)
-                                    .padding(16.dp)
-                                    .background(Color.White, RoundedCornerShape(30.dp)),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-
-                            ) {
-
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth(.8f)
-                                        .padding(horizontal = 8.dp),
-                                    horizontalArrangement = Arrangement.Start,
-                                    verticalAlignment = Alignment.CenterVertically
-
-                                ) {
-                                    Image(
-                                        painter = painterResource(R.drawable.pacman_logo),
-                                        contentDescription = "icn",
-                                        modifier = Modifier
-                                            .size(32.dp),
-                                        colorFilter = ColorFilter.tint(Color(62, 62, 62, 255))
-
-                                    )
-                                    if (value.text.isEmpty()) {
-                                        Text(
-                                            "Add a tag...",
-                                            Modifier.padding(8.dp, 0.dp, 0.dp, 0.dp),
-                                            fontSize = 16.sp,
-                                            fontWeight = FontWeight(300),
-                                            color = Color(57, 57, 60, 125)
-                                        )
-                                    }
-                                    innerTextField()
-                                }
-                                Button(
-                                    onClick = { /*TODO*/ },
-                                    modifier = Modifier
-                                        .width(45.dp)
-                                        .aspectRatio(1f),
-                                    contentPadding = PaddingValues(0.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(
-                                            0xFFD1F26E
-                                        )
-                                    ),
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Done,
-                                        contentDescription = "DoneBtn",
-                                        tint = Color.Black
-                                    )
-                                }
-                            }
-                        },
-                    )
-                }
+//                Row(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//
+//                ) {
+//                    // Creating a variable to store the TextField value
+//                    var value by remember { mutableStateOf(TextFieldValue("")) }
+//
+//                    // Creating a Basic TextField bu adding
+//                    // innerTextField that will display the Text hint
+//                    BasicTextField(
+//                        value = value,
+//                        textStyle = TextStyle(
+//                            color = Color.DarkGray,
+//                            fontSize = 16.sp,
+//                            fontWeight = FontWeight(300),
+//                        ),
+//                        onValueChange = { value = it },
+//                        decorationBox = { innerTextField ->
+//                            Row(
+//                                Modifier
+//                                    .fillMaxWidth(1f)
+//                                    .padding(16.dp)
+//                                    .padding(bottom = 16.dp)
+//                                    .background(MaterialTheme.colorScheme.onTertiary, RoundedCornerShape(30.dp)),
+//                                horizontalArrangement = Arrangement.SpaceBetween,
+//                                verticalAlignment = Alignment.CenterVertically
+//
+//                            ) {
+//
+//                                Row(
+//                                    modifier = Modifier
+//                                        .fillMaxWidth(.8f)
+//                                        .padding(horizontal = 8.dp),
+//                                    horizontalArrangement = Arrangement.Start,
+//                                    verticalAlignment = Alignment.CenterVertically
+//
+//                                ) {
+//                                    Image(
+//                                        painter = painterResource(R.drawable.pacman_logo),
+//                                        contentDescription = "icn",
+//                                        modifier = Modifier
+//                                            .size(32.dp),
+//                                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.surfaceVariant)
+//
+//                                    )
+//                                    if (value.text.isEmpty()) {
+//                                        Text(
+//                                            "Add a tag...",
+//                                            Modifier.padding(8.dp, 0.dp, 0.dp, 0.dp),
+//                                            fontSize = 16.sp,
+//                                            fontWeight = FontWeight(300),
+//                                            color = MaterialTheme.colorScheme.surfaceVariant
+//                                        )
+//                                    }
+//                                    innerTextField()
+//                                }
+//                                Button(
+//                                    onClick = { /*TODO*/ },
+//                                    modifier = Modifier
+//                                        .width(45.dp)
+//                                        .aspectRatio(1f),
+//                                    contentPadding = PaddingValues(0.dp),
+//                                    colors = ButtonDefaults.buttonColors(
+//                                        containerColor = Color(
+//                                            0xFFD1F26E
+//                                        )
+//                                    ),
+//                                ) {
+//                                    Icon(
+//                                        imageVector = Icons.Default.Done,
+//                                        contentDescription = "DoneBtn",
+//                                        tint = Color.Black
+//                                    )
+//                                }
+//                            }
+//                        },
+//                    )
+//                }
             }
         }
 

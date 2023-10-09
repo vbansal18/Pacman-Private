@@ -1,4 +1,4 @@
-package com.example.datencechatbotapp
+package com.example.datencechatbotapp.models
 
 data class Country(
     val country : String,

@@ -1,4 +1,4 @@
-import com.example.datencechatbotapp.Country
+import com.example.datencechatbotapp.models.Country
 
 val AllCountries = mutableListOf<Country>(
     Country("Afghanistan","https://www.worldometers.info//img/flags/small/tn_af-flag.gif"),

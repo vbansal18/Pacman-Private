@@ -1,5 +1,8 @@
 package com.example.datencechatbotapp.screens.questionscreen
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -11,12 +14,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -42,9 +47,9 @@ fun BottomSheet(
         sheetDragHandle = { DragHandle() },
         sheetPeekHeight = 100.dp,
         sheetContent = { BottomSheetContent(tags = tags) },
-        containerColor = Color.White,
-        sheetContainerColor = Color(241, 241, 241, 255),
-        sheetContentColor = Color(241, 241, 241, 255),
+        containerColor = MaterialTheme.colorScheme.onBackground,
+        sheetContainerColor = MaterialTheme.colorScheme.onBackground,
+        sheetContentColor = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier
             .fillMaxWidth()
     ) {
@@ -81,10 +86,12 @@ fun BottomSheetContent(tags: MutableMap<String, Boolean>) {
                             tags[key] = isActive
                             println("${tags[key]}")
                         },
-                        label = { Text(text = "$key") },
+                        label = { Text(text = "$key")},
                         colors = FilterChipDefaults.filterChipColors(
-                            disabledContainerColor = Color(217, 217, 217, 255),
-                            selectedContainerColor = Color(217, 251, 114, 255),
+                            disabledContainerColor = MaterialTheme.colorScheme.onBackground,
+                            selectedContainerColor = Color(0xFFD4F56F),
+                            labelColor = MaterialTheme.colorScheme.surface,
+                            selectedLabelColor = Color.Black,
 
                             )
                     )
@@ -129,6 +136,6 @@ fun DragHandle(): Unit {
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "View more tags", color = Color.Black, fontSize = 12.sp)
+        Text(text = "View more tags", color = MaterialTheme.colorScheme.surface, fontSize = 12.sp)
     }
 }

@@ -16,9 +16,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.materialIcon
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -35,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.datencechatbotapp.R
+import com.example.datencechatbotapp.ui.theme.Green
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
@@ -142,18 +145,19 @@ fun Dashboard(
                 fontSize = 16.sp,
                 modifier = Modifier
                     .padding(16.dp)
-                    .background(Color.White, RoundedCornerShape(28.dp))
+                    .background(MaterialTheme.colorScheme.onBackground, RoundedCornerShape(28.dp))
                     .padding(vertical = 10.dp, horizontal = 40.dp),
+                color = MaterialTheme.colorScheme.surface,
             )
         }
         Column(
             modifier = Modifier
                 .fillMaxSize(1f)
                 .background(
-                    Color.White,
+                    MaterialTheme.colorScheme.background,
                     RoundedCornerShape(
-                        topEnd = 28.dp,
-                        topStart = 28.dp
+                        topEnd = 36.dp,
+                        topStart = 36.dp
                     )
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -162,12 +166,12 @@ fun Dashboard(
             Text(
                 text = "CONSULTANCY",
                 fontSize = 24.sp,
-                color = Color(152, 175, 78, 255),
+                color = Color(0xFF98AF4E),
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp)
-                    .background(Color.White, RoundedCornerShape(28.dp))
+                    .background(Color.Transparent, RoundedCornerShape(28.dp))
                     .padding(vertical = 10.dp, horizontal = 40.dp),
             )
             Row(
@@ -188,7 +192,7 @@ fun Dashboard(
 
                     Text(
                         text = "<",
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.surface,
                         textAlign = TextAlign.Center,
                         fontSize = 26.sp,
                         fontWeight = FontWeight(300),
@@ -224,7 +228,8 @@ fun Dashboard(
                     Text(
                         text = "PacMan: Your AI legal guide, swiftly tackling hurdles for your dream projects",
                         fontSize = 17.sp,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.surface,
                     )
                 }
                 Button(
@@ -239,7 +244,7 @@ fun Dashboard(
 
                     Text(
                         text = ">",
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.surface,
                         textAlign = TextAlign.Center,
                         fontSize = 26.sp,
                         fontWeight = FontWeight(300),

@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -14,6 +16,7 @@ import com.example.datencechatbotapp.screens.Signup
 import com.example.datencechatbotapp.screens.UploadFiles
 import com.example.datencechatbotapp.screens.questionscreen.QuestionScreen
 import com.example.datencechatbotapp.screens.questionscreen.country.QuestionCountry
+import com.example.datencechatbotapp.ui.theme.DatenceChatbotAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,31 +29,36 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun App() {
-    val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "country") {
-        composable(route = "signup") {
-            Signup()
-        }
-        composable(route = "login") {
-            Login()
-        }
-        composable(route = "gettingStarted") {
-            GetStartedScreen()
-        }
-        composable(route = "signup") {
-            Signup()
-        }
-        composable(route = "question") {
-            QuestionScreen(AllQuestions[0])
-        }
-        composable(route = "dashboard") {
-            Dashboard()
-        }
-        composable(route = "upload") {
-            UploadFiles()
-        }
-        composable(route = "country") {
-            QuestionCountry()
+    var theme = remember {
+        mutableStateOf(true)
+    }
+    DatenceChatbotAppTheme(theme.value){
+        val navController = rememberNavController()
+        NavHost(navController = navController, startDestination = "question") {
+            composable(route = "signup") {
+                Signup()
+            }
+            composable(route = "login") {
+                Login()
+            }
+            composable(route = "gettingStarted") {
+                GetStartedScreen()
+            }
+            composable(route = "signup") {
+                Signup()
+            }
+            composable(route = "question") {
+                QuestionScreen(AllQuestionItems[0])
+            }
+            composable(route = "dashboard") {
+                Dashboard()
+            }
+            composable(route = "upload") {
+                UploadFiles()
+            }
+            composable(route = "country") {
+                QuestionCountry()
+            }
         }
     }
 }

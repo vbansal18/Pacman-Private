@@ -4,10 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,7 +32,10 @@ import kotlin.math.roundToInt
 @Composable
 fun DraggableTextLowLevel() {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+            .background(MaterialTheme.colorScheme.onTertiary, RoundedCornerShape(26.dp)),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
 
@@ -57,10 +62,17 @@ fun DraggableTextLowLevel() {
                 text = ">>>",
                 color = Color.Black,
                 fontSize = 23.sp,
-                fontWeight = FontWeight(300),
+                fontWeight = FontWeight(400),
                 textAlign = TextAlign.Center
             )
         }
-        Text(text = "Get Started", modifier = Modifier.fillMaxWidth(1f).padding(start = 30.dp), textAlign = TextAlign.Start)
+        Text(
+            text = "Get Started",
+            modifier = Modifier
+                .fillMaxWidth(1f)
+                .padding(start = 30.dp),
+            textAlign = TextAlign.Start,
+            color = MaterialTheme.colorScheme.surface,
+        )
     }
 }

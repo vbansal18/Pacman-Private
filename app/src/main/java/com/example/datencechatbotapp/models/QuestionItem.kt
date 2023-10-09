@@ -1,6 +1,6 @@
-package com.example.datencechatbotapp
+package com.example.datencechatbotapp.models
 
-data class Question(
+data class QuestionItem(
     val questionNumber : Int,
     val question : String,
     var tags : MutableMap<String, Boolean>,

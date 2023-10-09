@@ -1,5 +1,14 @@
+@file:Suppress("NAME_SHADOWING")
+
 package com.example.datencechatbotapp.screens
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,21 +29,28 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.datencechatbotapp.R
+import com.example.datencechatbotapp.api.FileUploadViewModel
 import com.example.datencechatbotapp.screens.components.TxtField
+import kotlinx.coroutines.launch
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
@@ -111,24 +127,8 @@ fun UploadFiles(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.Bottom
             ) {
-                Button(
-                    onClick = { /*TODO*/ },
-                    colors = ButtonDefaults.buttonColors(
-                        contentColor = Color.White,
-                        containerColor = Color.Black
-                    ),
-                    shape = CircleShape,
-                    modifier = Modifier
-                        .width(60.dp)
-                        .aspectRatio(1f),
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    Text(
-                        text = "+",
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight(300)
-                    )
-                }
+                val viewModel = viewModel<FileUploadViewModel>()
+                PdfFilePickerAndUploader(viewModel)
             }
         }
         Row(
@@ -184,3 +184,67 @@ fun UploadFiles(
     }
 
 }
+
+
+@Composable
+fun PdfFilePickerAndUploader(
+    viewModel: FileUploadViewModel
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+
+                selectedFileUri = data?.data
+                selectedFileUri?.let { uri ->
+                    // Handle the selected PDF file here
+                    Log.d("UPLOAD", "Selected File: ${uri.path}")
+                    scope.launch {
+                        try {
+                            val response = viewModel.uploadPdfFile(fileUri = uri, context)
+                            if (response.isSuccessful) {
+                                // Handle a successful upload
+                                Toast.makeText(context, "Upload successful", Toast.LENGTH_SHORT).show()
+                            } else {
+                                // Handle upload failure
+                                Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT).show()
+                            }
+                        } catch (e: Exception) {
+                            Log.d("ERROR", "Error: ${e.message}}")
+
+                        }
+                    }
+                }
+            }
+        }
+    Button(
+        onClick = {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+            intent.addCategory(Intent.CATEGORY_OPENABLE)
+            intent.type = "application/pdf" // Filter for PDF files
+
+            // Start the file picker activity
+            launcher.launch(intent)
+
+        },
+        colors = ButtonDefaults.buttonColors(
+            contentColor = Color.White,
+            containerColor = Color.Black
+        ),
+        shape = CircleShape,
+        modifier = Modifier
+            .width(60.dp)
+            .aspectRatio(1f),
+        contentPadding = PaddingValues(0.dp)
+    ) {
+        Text(
+            text = "+",
+            fontSize = 32.sp,
+            fontWeight = FontWeight(300)
+        )
+    }
+}
+
