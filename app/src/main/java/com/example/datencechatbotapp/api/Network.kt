@@ -4,12 +4,16 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.gson.JsonObject
+import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.ResponseBody
 import org.json.JSONObject
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -21,7 +25,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
     private const val BASE_URL =
-        "https://fea7-14-139-198-165.ngrok-free.app/"
+        "https://pacmanbackend.azurewebsites.net/"
 
     fun create(java: Class<ChatbotApi>): ChatbotApi {
         val okhttpClient = OkHttpClient.Builder()
@@ -48,6 +52,15 @@ object RetrofitClient {
 class FileUploadViewModel : ViewModel() {
     private val chatbotApi = RetrofitClient.create(ChatbotApi::class.java)
 
+    suspend fun changeProfilePicture(uri: Uri): Response<JsonObject> {
+        val file = File(uri.path)
+        val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+        val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
+
+        return chatbotApi.changeProfilePicture(body)
+
+    }
+
     suspend fun uploadPdfFile(fileUri: Uri, context: Context): Response<JSONObject> {
         val file = createFileDuplicate(context, fileUri)
         val requestFile = file.asRequestBody("application/pdf".toMediaTypeOrNull())
@@ -69,13 +82,16 @@ class FileUploadViewModel : ViewModel() {
         return file
     }
 
-    suspend fun uploadPdfLink(link : URL): Response<JsonObject> {
-        val linkObj = JsonObject()
-        linkObj.addProperty("url", link.toString())
-        Log.d("LINKPDF", linkObj.toString())
-        return chatbotApi.uploadLink(linkObj)
+    suspend fun uploadAnswers(ansObj : JsonObject): Response<JsonObject> {
+        Log.d("ANSWERS_", ansObj.toString())
+        return chatbotApi.uploadAnswers(ansObj)
     }
 
+    suspend fun uploadPdfLink(link : String): Response<JsonObject> {
+        val linkObj = JsonObject()
+        linkObj.addProperty("url", link)
+        return chatbotApi.uploadLink(linkObj)
+    }
 
     suspend fun changeUsername(name : String) : Response<JsonObject> {
         val jsonObject = JsonObject()
@@ -91,7 +107,7 @@ class FileUploadViewModel : ViewModel() {
     suspend fun getUserName(): Response<JsonObject> {
         return chatbotApi.getUsername()
     }
-    suspend fun getProfilePicture(): Response<JsonObject> {
+    suspend fun getProfilePicture(): Call<ResponseBody> {
         return chatbotApi.getProfilePicture()
     }
 }

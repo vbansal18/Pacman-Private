@@ -1,7 +1,19 @@
 package com.example.datencechatbotapp.screens
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder.decodeBitmap
+import android.net.Uri
+import android.os.Build
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,15 +37,21 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -41,13 +59,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.datencechatbotapp.R
 import com.example.datencechatbotapp.api.FileUploadViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.InputStream
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
@@ -135,6 +157,26 @@ fun Dashboard(
                 )
             }
         }
+        val viewModel = viewModel<FileUploadViewModel>()
+        val scope = rememberCoroutineScope()
+        var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+        val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.let {
+                selectedImageUri = it
+                scope.launch {
+                    try {
+                        val response = viewModel.changeProfilePicture(it)
+                        if(response.isSuccessful){
+                            Log.d("SUCCESSFULLVAJHHDui", response.body().toString())
+                        }
+                    } catch (e: Exception) {
+                        Log.d("ERRORERDHJHT", "Error: ${e.message}}")
+
+                    }
+                }
+
+            }
+        }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -144,7 +186,7 @@ fun Dashboard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val viewModel = viewModel<FileUploadViewModel>()
-            RenderNameAndImage(viewModel)
+//            RenderNameAndImage(viewModel)
         }
         Column(
             modifier = Modifier
@@ -284,8 +326,17 @@ fun Dashboard(
 
                 }
             }
+            val viewModel = viewModel<FileUploadViewModel>()
+
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+                    intent.addCategory(Intent.CATEGORY_OPENABLE)
+                    intent.type = "image/jpeg" // Filter for PDF files
+
+                    // Start the file picker activity
+                    launcher.launch(intent.type)
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(213, 245, 111, 255),
                     contentColor = Color.Black
@@ -305,43 +356,71 @@ fun Dashboard(
     }
 }
 
-@SuppressLint("CoroutineCreationDuringComposition")
+
+@RequiresApi(Build.VERSION_CODES.P)
+@SuppressLint("CoroutineCreationDuringComposition", "UnrememberedMutableState")
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun RenderNameAndImage(
     viewModel: FileUploadViewModel
 ) {
     val context = LocalContext.current
-    val scope = GlobalScope
+    val scope = viewModel.viewModelScope
     val name  = remember {
         mutableStateOf("Conor McGregor")
     }
-    val image_url  = remember {
-        mutableStateOf("https://i0.wp.com/www.howtomob.com/wp-content/uploads/2022/07/whatsapp-dp-for-boys-.jpg?ssl=1&resize=512%2C512")
-    }
+
+    val _imageBitmap = mutableStateOf<Bitmap?>(null)
+    val imageBitmap: State<Bitmap?> = _imageBitmap
 
     scope.launch {
         try {
-            val userName = viewModel.getUserName()
-            val profilePic = viewModel.getProfilePicture()
-            name.value = userName.body()?.get("username").toString().trim('"')
-            image_url.value = profilePic.body()?.get("url").toString()
-            Log.d("NAME", name.value)
-            Log.d("IMAGE", image_url.value)
+
+
+            val response = viewModel.getProfilePicture().execute()
+            if (response.isSuccessful) {
+                val responseBody = response.body()
+                if (responseBody != null) {
+                    _imageBitmap.value = decodeBitmap(responseBody.byteStream())
+                }
+            }
+
+
+//            val post_name = viewModel.changeUsername("VAIBHAV BANSAL")
+//            if (post_name.isSuccessful){
+//                try {
+//                    val userName = viewModel.getUserName()
+//                    name.value = userName.body()?.get("username").toString().trim('"')
+//                    Log.d("NAME", name.value)
+//
+//
+//                }
+//                catch (e : Exception){
+//                    Log.d("ERROR_", e.toString())
+//                }
+//            }
+//            else
+//            {
+//                Log.d("Error", "username can't be changed")
+//            }
+
         }
-        catch (e : Exception){
-             Log.d("ERROR_", e.toString())
+        catch (e:Exception){
+            Log.d("Error", e.message.toString())
         }
     }
 
-    Image(
-        painter = rememberAsyncImagePainter(model = image_url.value),
-        contentDescription = "userimage",
-        modifier = Modifier
-            .size(140.dp)
-            .clip(CircleShape)
-            .background(Color.Cyan)
-    )
+
+    imageBitmap.value?.let {
+            Image(
+            bitmap = it.asImageBitmap(),
+            contentDescription = "userimage",
+            modifier = Modifier
+                .size(140.dp)
+                .clip(CircleShape)
+                .background(Color.Cyan)
+        )
+    }
     Text(
         text = name.value ,
         fontSize = 16.sp,
@@ -351,4 +430,9 @@ fun RenderNameAndImage(
             .padding(vertical = 10.dp, horizontal = 40.dp),
         color = MaterialTheme.colorScheme.surface,
     )
+}
+private suspend fun decodeBitmap(inputStream: InputStream): Bitmap? {
+    return withContext(Dispatchers.IO) {
+        BitmapFactory.decodeStream(inputStream)
+    }
 }

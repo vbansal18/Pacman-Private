@@ -50,8 +50,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.datencechatbotapp.R
 import com.example.datencechatbotapp.api.FileUploadViewModel
 import com.example.datencechatbotapp.screens.components.TxtField
+import com.google.gson.JsonObject
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import java.net.URL
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
@@ -184,12 +187,14 @@ fun UploadFiles(
                 )
                 .padding(horizontal = 20.dp, vertical = 14.dp),
             hintColor = Color(0xFF656565),
-            )
+        )
         val viewModel = viewModel<FileUploadViewModel>()
-        Button(onClick = { upload(viewModel)}, modifier = Modifier
-            .padding(20.dp)
-            .fillMaxWidth()
-            .padding(20.dp)) {
+        Button(
+            onClick = { upload(viewModel) }, modifier = Modifier
+                .padding(20.dp)
+                .fillMaxWidth()
+                .padding(20.dp)
+        ) {
             Text(text = "Submit")
         }
     }
@@ -218,7 +223,8 @@ fun PdfFilePickerAndUploader(
                             val response = viewModel.uploadPdfFile(fileUri = uri, context)
                             if (response.isSuccessful) {
                                 // Handle a successful upload
-                                Toast.makeText(context, "Upload successful", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Upload successful", Toast.LENGTH_SHORT)
+                                    .show()
                             } else {
                                 // Handle upload failure
                                 Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT).show()
@@ -258,18 +264,94 @@ fun PdfFilePickerAndUploader(
         )
     }
 }
+//@Composable
+//fun PdfFilePickerAndUploader(
+//    viewModel: FileUploadViewModel
+//) {
+//    val context = LocalContext.current
+//    val scope = rememberCoroutineScope()
+//    var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
+//    val launcher =
+//        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+//            if (result.resultCode == Activity.RESULT_OK) {
+//                val data: Intent? = result.data
+//
+//                selectedFileUri = data?.data
+//                selectedFileUri?.let { uri ->
+//                    // Handle the selected PDF file here
+//                    Log.d("UPLOAD", "Selected File: ${uri.path}")
+//                    scope.launch {
+//                        try {
+//                            val response = viewModel.uploadPdfFile(fileUri = uri, context)
+//                            if (response.isSuccessful) {
+//                                // Handle a successful upload
+//                                Toast.makeText(context, "Upload successful", Toast.LENGTH_SHORT)
+//                                    .show()
+//                            } else {
+//                                // Handle upload failure
+//                                Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT).show()
+//                            }
+//                        } catch (e: Exception) {
+//                            Log.d("ERROR", "Error: ${e.message}}")
+//
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    Button(
+//        onClick = {
+//            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+//            intent.addCategory(Intent.CATEGORY_OPENABLE)
+//            intent.type = "application/pdf" // Filter for PDF files
+//
+//            // Start the file picker activity
+//            launcher.launch(intent)
+//
+//        },
+//        colors = ButtonDefaults.buttonColors(
+//            contentColor = Color.White,
+//            containerColor = Color.Black
+//        ),
+//        shape = CircleShape,
+//        modifier = Modifier
+//            .width(60.dp)
+//            .aspectRatio(1f),
+//        contentPadding = PaddingValues(0.dp)
+//    ) {
+//        Text(
+//            text = "+",
+//            fontSize = 32.sp,
+//            fontWeight = FontWeight(300)
+//        )
+//    }
+//}
 
-fun upload(viewModel: FileUploadViewModel){
+fun upload(viewModel: FileUploadViewModel) {
     GlobalScope.launch {
-        try
-        {
-            val link = viewModel.uploadPdfLink("https://docs.google.com/document/d/1XbqeyXD7HRt0sDL7E_bub8AqJGm7b_eluNf8wwdwiwY/edit")
-            if(link.isSuccessful){
-                Log.d("SUCCESS_LINK", link.body().toString())
+        try {
+            val json = JsonObject()
+            val json1 = JsonObject()
+            val json2 = JsonObject()
+            val json3 = JsonObject()
+            json1.addProperty("timestamp", "something")
+            json1.addProperty("isCompleted", "value")
+            json2.addProperty("company_name", "Company's Name PVT. LTD")
+            json2.addProperty("industry", "industry")
+            json2.addProperty("base_country", "base_country")
+            json3.addProperty("company_name", "Company's Name PVT. LTD")
+            json3.addProperty("industry", "industry")
+            json3.addProperty("base_country", "base_country")
+            json3.addProperty("company_name", "Company's Name PVT. LTD")
+            json1.add("case_data", json2)
+            json.add("case_data", json3)
+            json.add("session1", json1)
+            val answers = viewModel.uploadAnswers(json)
+            if(answers.isSuccessful){
+                Log.d("ANSWERS_SUCCESS_LINK", answers.body().toString())
             }
-        }
-        catch (e:Exception){
-            Log.d("ERROR", e.message.toString())
+        } catch (e: Exception) {
+            Log.d("ERROR_", e.message.toString())
         }
     }
 }

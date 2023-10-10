@@ -2,7 +2,9 @@ package com.example.datencechatbotapp.api
 
 import com.google.gson.JsonObject
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import org.json.JSONObject
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -12,7 +14,7 @@ import retrofit2.http.Part
 
 interface ChatbotApi {
     @POST("uploadAnswers?userId=sanepike")
-    suspend fun uploadAnswers(answers : JsonObject): Response<JsonObject>
+    suspend fun uploadAnswers(@Body answers : JsonObject): Response<JsonObject>
 
     @Multipart
     @POST("uploadFile?userId=sanepike")
@@ -23,15 +25,14 @@ interface ChatbotApi {
     @Multipart
     @POST("changeProfilePicture?userId=sanepike")
     suspend fun changeProfilePicture(
-        @Part filePart: MultipartBody.Part
+        @Part image: MultipartBody.Part
     ): Response<JsonObject>
 
     @POST("uploadLink?userId=sanepike")
-    suspend fun uploadLink(link: JsonObject) : Response<JsonObject>
+    suspend fun uploadLink(@Body link: JsonObject) : Response<JsonObject>
 
     @POST("changeUsername?userId=sanepike")
     suspend fun changeUsername(@Body username: JsonObject) : Response<JsonObject>
-
 
     @GET("getAllCases?userId=sanepike")
     suspend fun getAllCases(): Response<JsonObject>
@@ -40,5 +41,5 @@ interface ChatbotApi {
     suspend fun getUsername(): Response<JsonObject>
 
     @GET("getProfilePicture?userId=sanepike")
-    suspend fun getProfilePicture(): Response<JsonObject>
+    suspend fun getProfilePicture(): Call<ResponseBody>
 }
