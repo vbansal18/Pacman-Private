@@ -32,7 +32,7 @@ object RetrofitClient {
             .connectTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
-            .addInterceptor{
+            .addInterceptor {
                 Log.d("URL", it.request().url.toString())
                 it.proceed(it.request())
 
@@ -82,31 +82,32 @@ class FileUploadViewModel : ViewModel() {
         return file
     }
 
-    suspend fun uploadAnswers(ansObj : JsonObject): Response<JsonObject> {
+    suspend fun uploadAnswers(ansObj: JsonObject): Response<JsonObject> {
         Log.d("ANSWERS_", ansObj.toString())
         return chatbotApi.uploadAnswers(ansObj)
     }
 
-    suspend fun uploadPdfLink(link : String): Response<JsonObject> {
+    suspend fun uploadPdfLink(link: String): Response<JsonObject> {
         val linkObj = JsonObject()
         linkObj.addProperty("url", link)
         return chatbotApi.uploadLink(linkObj)
     }
 
-    suspend fun changeUsername(name : String) : Response<JsonObject> {
+    suspend fun changeUsername(name: String): Response<JsonObject> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("username", name)
         return chatbotApi.changeUsername(jsonObject)
     }
 
 
-
     suspend fun getAllCases(): Response<JsonObject> {
         return chatbotApi.getAllCases()
     }
+
     suspend fun getUserName(): Response<JsonObject> {
         return chatbotApi.getUsername()
     }
+
     suspend fun getProfilePicture(): Call<ResponseBody> {
         return chatbotApi.getProfilePicture()
     }

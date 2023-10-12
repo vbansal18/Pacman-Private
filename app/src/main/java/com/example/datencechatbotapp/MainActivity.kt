@@ -1,5 +1,6 @@
 package com.example.datencechatbotapp
 
+import SettingsScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.datencechatbotapp.screens.Dashboard
+import com.example.datencechatbotapp.screens.Feedback
 import com.example.datencechatbotapp.screens.GetStartedScreen
 import com.example.datencechatbotapp.screens.Login
 import com.example.datencechatbotapp.screens.Signup
@@ -29,14 +31,20 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun App() {
-    var theme = remember {
-        mutableStateOf(true)
+    val theme = remember {
+        mutableStateOf(false)
     }
     DatenceChatbotAppTheme(theme.value){
         val navController = rememberNavController()
-        NavHost(navController = navController, startDestination = "dashboard") {
+        NavHost(navController = navController, startDestination = "feedback") {
             composable(route = "signup") {
                 Signup()
+            }
+            composable(route = "feedback") {
+                Feedback()
+            }
+            composable(route = "settings") {
+                SettingsScreen(theme)
             }
             composable(route = "login") {
                 Login()
@@ -62,5 +70,3 @@ fun App() {
         }
     }
 }
-
-

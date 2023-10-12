@@ -3,5 +3,5 @@ package com.example.datencechatbotapp.models
 data class QuestionItem(
     val questionNumber : Int,
     val question : String,
-    var tags : MutableMap<String, Boolean>,
+    var tags : List<TagItem>,
 )
