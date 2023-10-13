@@ -44,14 +44,6 @@ fun QuestionCountry(
     Column(
         modifier = Modifier
             .fillMaxSize()
-//            .background(
-//                brush = Brush.verticalGradient(
-//                    colors = listOf(
-//                        Color.White, Color(217, 251, 114, 255)
-//                    )
-//                )
-//            )
-//            .padding(20.dp)
             .shadow(4.dp, RoundedCornerShape(21.dp, 21.dp, 40.dp, 40.dp))
             .background(
                 Color.White, RoundedCornerShape(40.dp)

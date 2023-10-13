@@ -198,7 +198,7 @@ private fun AccountSettingsSection(theme: MutableState<Boolean>) {
         Text(
             text = "Account Settings",
             color = Color(173, 173, 173, 255),
-            fontSize = 16.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight(500)
         )
         Spacer(modifier = Modifier.height(30.dp))
@@ -213,7 +213,7 @@ private fun AccountSettingsSection(theme: MutableState<Boolean>) {
             if(theme.value==true) {
                 Text(
                     text = "Dark Mode",
-                    fontSize = 18.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight(400),
                     modifier = Modifier
                         .weight(.8f),
@@ -223,7 +223,7 @@ private fun AccountSettingsSection(theme: MutableState<Boolean>) {
             else{
                 Text(
                     text = "Light Mode",
-                    fontSize = 18.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight(400),
                     modifier = Modifier
                         .weight(.8f),
@@ -267,7 +267,7 @@ private fun MoreSection() {
         Text(
             text = "More",
             color = Color(173, 173, 173, 255),
-            fontSize = 16.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight(500)
         )
         Spacer(modifier = Modifier.height(30.dp))
@@ -281,8 +281,8 @@ private fun MoreSection() {
         ) {
             Text(
                 text = "Logout",
-                fontSize = 18.sp,
-                fontWeight = FontWeight(400),
+                fontSize = 15.sp,
+                fontWeight = FontWeight(500),
                 color = MaterialTheme.colorScheme.surface,
             )
         }
@@ -310,7 +310,7 @@ private fun OptionItems(
             ) {
                 Text(
                     text = item.name,
-                    fontSize = 18.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight(400),
                     modifier = Modifier
                         .weight(.8f),

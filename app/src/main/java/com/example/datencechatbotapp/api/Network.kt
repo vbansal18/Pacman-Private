@@ -3,10 +3,10 @@ package com.example.datencechatbotapp.api
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.google.gson.JsonObject
-import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -17,17 +17,17 @@ import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.io.File
 import java.io.FileOutputStream
-import java.net.URL
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 
-
+private const val BASE_URL =
+    "https://pacmanbackend.azurewebsites.net/"
 object RetrofitClient {
-    private const val BASE_URL =
-        "https://pacmanbackend.azurewebsites.net/"
-
     fun create(java: Class<ChatbotApi>): ChatbotApi {
+
         val okhttpClient = OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
@@ -52,15 +52,26 @@ object RetrofitClient {
 class FileUploadViewModel : ViewModel() {
     private val chatbotApi = RetrofitClient.create(ChatbotApi::class.java)
 
-    suspend fun changeProfilePicture(uri: Uri): Response<JsonObject> {
-        val file = File(uri.path)
+    suspend fun changeProfilePicture(uri: Uri, context: Context): Response<JsonObject> {
+        val file = createImageDuplicate(context,uri)
         val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
         val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
 
         return chatbotApi.changeProfilePicture(body)
 
     }
+    fun createImageDuplicate(context: Context, uri: Uri): File {
+        val file = File(context.filesDir, "file.jpeg")
 
+        val inputStream = context.contentResolver.openInputStream(uri)
+        val outputStream = FileOutputStream(file)
+
+        inputStream!!.copyTo(outputStream)
+
+        inputStream.close()
+
+        return file
+    }
     suspend fun uploadPdfFile(fileUri: Uri, context: Context): Response<JSONObject> {
         val file = createFileDuplicate(context, fileUri)
         val requestFile = file.asRequestBody("application/pdf".toMediaTypeOrNull())
@@ -107,8 +118,22 @@ class FileUploadViewModel : ViewModel() {
     suspend fun getUserName(): Response<JsonObject> {
         return chatbotApi.getUsername()
     }
+    val httpClient = OkHttpClient.Builder()
+        // Add any necessary configurations here
+        .build()
 
-    suspend fun getProfilePicture(): Call<ResponseBody> {
-        return chatbotApi.getProfilePicture()
-    }
+    val retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .client(httpClient)
+        .addConverterFactory(ScalarsConverterFactory.create()) // ScalarsConverterFactory for raw bytes
+        .build()
+
+    val imageService = retrofit.create(ImageServiceApi::class.java)
+
+
 }
+
+
+
+
+

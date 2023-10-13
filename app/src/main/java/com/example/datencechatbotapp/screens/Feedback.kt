@@ -130,7 +130,7 @@ fun Feedback() {
                             text = "<",
                             color = Color.Black,
                             textAlign = TextAlign.Center,
-                            fontSize = 26.sp,
+                            fontSize = 24.sp,
                             fontWeight = FontWeight(300),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -159,54 +159,54 @@ fun Feedback() {
                         Text(
                             text = "Feedback",
                             textAlign = TextAlign.Start,
-                            fontSize = 18.sp,
+                            fontSize = 16.sp,
                             modifier = Modifier.padding(start = 8.dp)
                         )
                     }
                 }
                 Text(
                     text = "Share your feedback",
-                    fontSize = 26.sp,
+                    fontSize = 24.sp,
                     fontWeight = FontWeight(500),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 28.dp)
                 )
                 Text(
-                    text = "Rate your experience", fontSize = 18.sp, modifier = Modifier
+                    text = "Rate your experience", fontSize = 16.sp, modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 28.dp, top = 15.dp)
+                        .padding(start = 28.dp, top = 8.dp)
                 )
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 25.dp),
+                        .padding(vertical = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "😍", fontSize = 24.sp,
+                        text = "😠", fontSize = 24.sp,
                         modifier = Modifier
                             .padding(10.dp)
                             .background(Color(217, 217, 217, 255), RoundedCornerShape(50.dp))
                             .padding(10.dp)
                     )
                     Text(
-                        text = "😍", fontSize = 24.sp,
+                        text = "😒", fontSize = 24.sp,
                         modifier = Modifier
                             .padding(10.dp)
                             .background(Color(217, 217, 217, 255), RoundedCornerShape(50.dp))
                             .padding(10.dp)
                     )
                     Text(
-                        text = "😍", fontSize = 24.sp,
+                        text = "😐", fontSize = 24.sp,
                         modifier = Modifier
                             .padding(10.dp)
                             .background(Color(217, 217, 217, 255), RoundedCornerShape(50.dp))
                             .padding(10.dp)
                     )
                     Text(
-                        text = "😍", fontSize = 24.sp,
+                        text = "😄", fontSize = 24.sp,
                         modifier = Modifier
                             .padding(10.dp)
                             .background(Color(217, 217, 217, 255), RoundedCornerShape(50.dp))
@@ -232,17 +232,18 @@ fun Feedback() {
 
 @Composable
 private fun BottomSection() {
-    val items =  mutableListOf(
-            TagItem("Delivery speed" , false),
-            TagItem("Product quality" , false),
-            TagItem("Customer support" , false),
-            TagItem("Overall service" , false),
+    val items = mutableListOf(
+        TagItem("Quality of Evaluation", false),
+        TagItem("Quality of Suggestions", false),
+        TagItem("Customer service", false),
+        TagItem("Overall service", false),
     )
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(.65f)
+            .fillMaxHeight(.7f)
             .padding(horizontal = 20.dp)
+            .padding(top = 10.dp)
             .background(
                 MaterialTheme.colorScheme.background,
                 RoundedCornerShape(topEnd = 40.dp, topStart = 40.dp)
@@ -250,56 +251,58 @@ private fun BottomSection() {
             .padding(30.dp)
 
     ) {
-        Text(
-            text = "What did you like?",
-            fontSize = 18.sp,
-            fontWeight = FontWeight(400),
-            color = MaterialTheme.colorScheme.surface
-        )
-        OptionItems(items)
-        Text(
-            text = "Your comment (optional)",
-            fontSize = 18.sp,
-            fontWeight = FontWeight(400),
-            color = MaterialTheme.colorScheme.surface,
-            modifier = Modifier.padding(top = 40.dp)
-        )
-        var comment by remember { mutableStateOf(TextFieldValue("")) }
-
-        TextField(
-            label = {
-                Text(text = "Describe your experience ")
-            },
-            value = comment,
-            onValueChange = {comment = it},
-            colors = TextFieldDefaults.colors(
-                focusedSupportingTextColor = Color.Gray,
-                unfocusedSupportingTextColor = Color.Gray,
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedContainerColor = Color(234, 251, 180, 255),
-                unfocusedContainerColor = Color(234, 251, 180, 255)
-            ),
-            modifier = Modifier
-                .padding(top = 20.dp)
-                .fillMaxWidth()
-                .height(100.dp)
-        )
-        Button(
-            onClick = {},
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(213, 245, 111, 255),
-                contentColor = Color.Black
-            ),
-            modifier = Modifier
-                .fillMaxWidth(1f)
-                .padding(top = 30.dp)
-        ) {
+        items(1){
             Text(
-                text = "Send",
-                color = Color(75, 75, 75, 255),
-                fontSize = 16.sp
+                text = "What did you like?",
+                fontSize = 18.sp,
+                fontWeight = FontWeight(400),
+                color = MaterialTheme.colorScheme.surface
             )
+            OptionItems(items)
+            Text(
+                text = "Your comment (optional)",
+                fontSize = 18.sp,
+                fontWeight = FontWeight(400),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.padding(top = 40.dp)
+            )
+            var comment by remember { mutableStateOf(TextFieldValue("")) }
+
+            TextField(
+                label = {
+                    Text(text = "Describe your experience ")
+                },
+                value = comment,
+                onValueChange = { comment = it },
+                colors = TextFieldDefaults.colors(
+                    focusedSupportingTextColor = Color.Gray,
+                    unfocusedSupportingTextColor = Color.Gray,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    focusedContainerColor = Color(234, 251, 180, 255),
+                    unfocusedContainerColor = Color(234, 251, 180, 255)
+                ),
+                modifier = Modifier
+                    .padding(top = 20.dp)
+                    .fillMaxWidth()
+                    .height(100.dp)
+            )
+            Button(
+                onClick = {},
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(213, 245, 111, 255),
+                    contentColor = Color.Black
+                ),
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .padding(top = 30.dp)
+            ) {
+                Text(
+                    text = "Send",
+                    color = Color(75, 75, 75, 255),
+                    fontSize = 16.sp
+                )
+            }
         }
     }
 }
@@ -354,12 +357,16 @@ fun CircleCheckbox(selected: Boolean, enabled: Boolean = true, onChecked: () -> 
     val tint = if (selected) Color(105, 204, 5, 255) else Color(217, 217, 217, 255)
     val background = if (selected) Color.White else Color(217, 217, 217, 255)
 
-    IconButton(onClick = { onChecked() },
+    IconButton(
+        onClick = { onChecked() },
         modifier = Modifier.offset(x = 4.dp, y = 4.dp),
-        enabled = enabled) {
+        enabled = enabled
+    ) {
 
-        Icon(imageVector = imageVector, tint = tint,
+        Icon(
+            imageVector = imageVector, tint = tint,
             modifier = Modifier.background(background, shape = CircleShape),
-            contentDescription = "checkbox")
+            contentDescription = "checkbox"
+        )
     }
 }

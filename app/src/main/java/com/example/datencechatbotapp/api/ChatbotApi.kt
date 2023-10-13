@@ -40,6 +40,12 @@ interface ChatbotApi {
     @GET("getUsername?userId=sanepike")
     suspend fun getUsername(): Response<JsonObject>
 
+//    @GET("getProfilePicture?userId=sanepike")
+//    suspend fun getProfilePicture(): Call<ResponseBody>
+}
+
+interface ImageServiceApi{
     @GET("getProfilePicture?userId=sanepike")
     suspend fun getProfilePicture(): Call<ResponseBody>
+
 }

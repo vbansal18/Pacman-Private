@@ -27,6 +27,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,12 +50,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.datencechatbotapp.R
 import com.example.datencechatbotapp.api.FileUploadViewModel
-import com.example.datencechatbotapp.screens.components.TxtField
+import com.example.datencechatbotapp.screens.components.EmailTextField
 import com.google.gson.JsonObject
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import okhttp3.HttpUrl.Companion.toHttpUrl
-import java.net.URL
+
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
@@ -65,12 +65,15 @@ fun UploadFiles(
         mutableStateOf("")
     }
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(.65f)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             Column(
                 modifier = Modifier
@@ -153,7 +156,7 @@ fun UploadFiles(
             ) {
                 Divider(
                     thickness = 0.7.dp,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.surface,
                     modifier = Modifier
                         .weight(.3f)
                 )
@@ -162,32 +165,24 @@ fun UploadFiles(
                     fontSize = 20.sp,
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight(400),
-                    modifier = Modifier.padding(horizontal = 10.dp)
+                    modifier = Modifier.padding(horizontal = 10.dp),
+                    color = MaterialTheme.colorScheme.surface
                 )
                 Divider(
                     thickness = 0.7.dp,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.surface,
                     modifier = Modifier
                         .weight(.3f)
                 )
             }
         }
-
-        TxtField(
-            tintColor = Color.White,
-            hint = "Paste your link here....",
-            icn = null,
+        Row(
             modifier = Modifier
-                .padding(top = 50.dp)
-                .fillMaxWidth()
                 .padding(horizontal = 20.dp)
-                .background(
-                    Color(234, 251, 180, 255),
-                    RoundedCornerShape(10.dp)
-                )
-                .padding(horizontal = 20.dp, vertical = 14.dp),
-            hintColor = Color(0xFF656565),
-        )
+                .fillMaxWidth()
+        )  {
+            EmailTextField(hint = "Paste Your Link...", icn = R.drawable.baseline_add_link_24, bgcolor = MaterialTheme.colorScheme.background)
+        }
         val viewModel = viewModel<FileUploadViewModel>()
         Button(
             onClick = { upload(viewModel) }, modifier = Modifier
@@ -248,8 +243,8 @@ fun PdfFilePickerAndUploader(
 
         },
         colors = ButtonDefaults.buttonColors(
-            contentColor = Color.White,
-            containerColor = Color.Black
+            contentColor = MaterialTheme.colorScheme.background,
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         shape = CircleShape,
         modifier = Modifier
@@ -260,7 +255,7 @@ fun PdfFilePickerAndUploader(
         Text(
             text = "+",
             fontSize = 32.sp,
-            fontWeight = FontWeight(300)
+            fontWeight = FontWeight(300),
         )
     }
 }
@@ -347,7 +342,7 @@ fun upload(viewModel: FileUploadViewModel) {
             json.add("case_data", json3)
             json.add("session1", json1)
             val answers = viewModel.uploadAnswers(json)
-            if(answers.isSuccessful){
+            if (answers.isSuccessful) {
                 Log.d("ANSWERS_SUCCESS_LINK", answers.body().toString())
             }
         } catch (e: Exception) {

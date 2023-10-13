@@ -2,7 +2,6 @@ package com.example.datencechatbotapp.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -37,15 +35,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.datencechatbotapp.R
-import com.example.datencechatbotapp.screens.components.TxtField
+import com.example.datencechatbotapp.screens.components.EmailTextField
+import com.example.datencechatbotapp.screens.components.PasswordTextField
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
@@ -55,7 +54,9 @@ fun Login() {
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.primary
+                        MaterialTheme.colorScheme.secondary,
+                        MaterialTheme.colorScheme.secondary,
+                        MaterialTheme.colorScheme.primary
                     )
                 )
             )
@@ -65,7 +66,7 @@ fun Login() {
                 contentScale = ContentScale.FillBounds,
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.background),
             )
-            .padding(horizontal = 8.dp, vertical = 20.dp),
+            .padding(horizontal = 8.dp),
 
         ) {
 
@@ -74,14 +75,16 @@ fun Login() {
             modifier = Modifier
                 .background(Color.Transparent)
                 .fillMaxWidth()
-                .fillMaxHeight(.540f),
+                .fillMaxHeight(.540f)
+                .padding(horizontal = 30.dp),
+
             verticalArrangement = Arrangement.Center,
 
             ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth(1f)
-                    .padding(28.dp, 22.dp, 28.dp, 28.dp),
+                    .padding(0.dp, 22.dp, 0.dp, 28.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -99,66 +102,38 @@ fun Login() {
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.size(86.dp)
                 )
-
             }
-            TxtField(
-                tintColor = MaterialTheme.colorScheme.surfaceVariant,
-                hint = "Email Address",
-                icn = R.drawable.baseline_mail_24,
-                hintColor = MaterialTheme.colorScheme.surfaceTint,
-                modifier = Modifier
-                    .padding(top = 15.dp)
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-                    .background(
-                        MaterialTheme.colorScheme.background,
-                        RoundedCornerShape(10.dp)
-                    )
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.surface,
-                        shape = RoundedCornerShape(size = 10.dp)
-                    )
-                    .padding(horizontal = 20.dp, vertical = 10.dp),
-
-                )
-            TxtField(
-                tintColor = MaterialTheme.colorScheme.surfaceVariant,
+            EmailTextField(
+                hint = "Username",
+                icn = R.drawable.baseline_person_24,
+                bgcolor = MaterialTheme.colorScheme.background
+            )
+            PasswordTextField(
                 hint = "Password",
                 icn = R.drawable.baseline_lock_24,
-                hintColor = MaterialTheme.colorScheme.surfaceTint,
-                modifier = Modifier
-                    .padding(top = 15.dp)
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-                    .background(
-                        MaterialTheme.colorScheme.background,
-                        RoundedCornerShape(10.dp)
-                    )
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.surface,
-                        shape = RoundedCornerShape(size = 10.dp)
-                    )
-                    .padding(horizontal = 20.dp, vertical = 10.dp),
-                )
+            )
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(1f)
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                    .fillMaxSize(1f)
+                    .padding(vertical = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
 
             ) {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier
+                        .fillMaxWidth(.4f)
+                        .fillMaxHeight(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
                 ) {
                     var isChecked by remember {
                         mutableStateOf(false)
                     }
                     Checkbox(
-                        checked = isChecked, onCheckedChange = {isChecked=!isChecked},
+                        checked = isChecked,
+                        onCheckedChange = { isChecked = !isChecked },
                         modifier = Modifier
+                            .fillMaxWidth(.2f)
                             .scale(0.8f),
                         colors = CheckboxDefaults.colors(
                             checkedColor = MaterialTheme.colorScheme.primary,
@@ -167,20 +142,33 @@ fun Login() {
                         )
                     )
                     Text(
-                        text = "Remember Password",
-                        fontSize = 10.sp,
+                        text = "Remember",
+                        fontSize = 12.sp,
                         fontWeight = FontWeight(400),
                         color = MaterialTheme.colorScheme.surface,
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier
+                            .fillMaxWidth(1f)
+                            .padding(start = 5.dp)
+
+                    )
+
+                }
+                Row(
+                    modifier = Modifier.fillMaxSize(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End
+
+                ) {
+                    Text(
+                        text = "Forgot your password?",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight(600),
+                        textDecoration = TextDecoration.Underline,
+                        color = MaterialTheme.colorScheme.surfaceTint,
+                        textAlign = TextAlign.End
                     )
                 }
-                Text(
-                    text = "Forgot your password?",
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight(600),
-                    textDecoration = TextDecoration.Underline,
-                    color = MaterialTheme.colorScheme.surfaceTint,
-                    modifier = Modifier.padding(start = 20.dp)
-                )
             }
 
         }
@@ -257,7 +245,7 @@ fun Login() {
                             .aspectRatio(1f)
                             .clip(RoundedCornerShape(500.dp)),
 
-                    )
+                        )
                     Image(
                         painter = painterResource(id = R.drawable.pinterest),
                         contentDescription = "fb logo",
