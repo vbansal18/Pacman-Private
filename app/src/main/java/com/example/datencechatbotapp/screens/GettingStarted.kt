@@ -1,6 +1,6 @@
 package com.example.datencechatbotapp.screens
 
-import DraggableTextLowLevel
+import DraggableBtn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,14 +25,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.datencechatbotapp.R
 
-@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun GetStartedScreen() {
+fun GetStartedScreen(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -66,7 +65,6 @@ fun GetStartedScreen() {
                     .size(30.dp),
                 tint = MaterialTheme.colorScheme.surface
             )
-
         }
         Image(
             painter = painterResource(id = R.drawable.pacman_logo_get_started),
@@ -97,7 +95,7 @@ fun GetStartedScreen() {
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            DraggableTextLowLevel()
+            DraggableBtn(navController)
         }
 
     }

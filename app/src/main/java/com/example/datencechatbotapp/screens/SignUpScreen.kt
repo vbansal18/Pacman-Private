@@ -33,13 +33,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.datencechatbotapp.R
 import com.example.datencechatbotapp.screens.components.EmailTextField
 import com.example.datencechatbotapp.screens.components.PasswordTextField
 
-@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun Signup() {
+fun Signup(navController: NavHostController) {
     Column(
         modifier = Modifier
             .background(
@@ -125,7 +125,9 @@ fun Signup() {
 
         ) {
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    navController.navigate("dashboard")
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 contentPadding = PaddingValues(
                     start = 34.dp,

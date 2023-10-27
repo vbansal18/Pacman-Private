@@ -37,11 +37,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.datencechatbotapp.models.TagItem
 import com.example.datencechatbotapp.ui.theme.Gray
 
 @Composable
-fun SettingsScreen(theme: MutableState<Boolean>) {
+fun SettingsScreen(theme: MutableState<Boolean>, navController: NavHostController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -82,6 +83,7 @@ fun SettingsScreen(theme: MutableState<Boolean>) {
                     )
 
             ) {
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -126,14 +128,14 @@ fun SettingsScreen(theme: MutableState<Boolean>) {
             }
         }
 
-        BottomSection(theme)
+        BottomSection(theme, navController)
     }
 
 
 }
 
 @Composable
-private fun BottomSection(theme: MutableState<Boolean>) {
+private fun BottomSection(theme: MutableState<Boolean>, navController: NavHostController) {
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -147,8 +149,8 @@ private fun BottomSection(theme: MutableState<Boolean>) {
     ) {
         items(1) {
             UserDetailsSection()
-            AccountSettingsSection(theme)
-            MoreSection()
+            AccountSettingsSection(theme, navController)
+            MoreSection(navController)
         }
     }
 }
@@ -181,9 +183,9 @@ private fun UserDetailsSection() {
 }
 
 @Composable
-private fun AccountSettingsSection(theme: MutableState<Boolean>) {
+private fun AccountSettingsSection(theme: MutableState<Boolean>, navController: NavHostController) {
     val items = mutableListOf(
-        TagItem("Edit profile", false),
+        TagItem("Edit profile", false, id = "editProfile"),
         TagItem("Change password", false),
         TagItem("Help and support", false),
     )
@@ -202,7 +204,7 @@ private fun AccountSettingsSection(theme: MutableState<Boolean>) {
             fontWeight = FontWeight(500)
         )
         Spacer(modifier = Modifier.height(30.dp))
-        OptionItems(items)
+        OptionItems(items, navController)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -244,7 +246,7 @@ private fun AccountSettingsSection(theme: MutableState<Boolean>) {
                 )
             )
         }
-        OptionItems(items2)
+        OptionItems(items2, navController)
         Spacer(modifier = Modifier.height(3.dp))
     }
     Divider(thickness = 1.dp)
@@ -252,7 +254,7 @@ private fun AccountSettingsSection(theme: MutableState<Boolean>) {
 }
 
 @Composable
-private fun MoreSection() {
+private fun MoreSection(navController: NavHostController) {
     val items = mutableListOf(
         TagItem("Coupons / FAQs", false),
         TagItem("Referral program", false),
@@ -271,12 +273,12 @@ private fun MoreSection() {
             fontWeight = FontWeight(500)
         )
         Spacer(modifier = Modifier.height(30.dp))
-        OptionItems(items)
+        OptionItems(items, navController)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
-                .clickable { },
+                .clickable { navController.navigate("login")},
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
@@ -295,6 +297,7 @@ private fun MoreSection() {
 @Composable
 private fun OptionItems(
     names: MutableList<TagItem>,
+    navController: NavHostController,
 ) {
     Column(
         modifier = Modifier
@@ -305,7 +308,7 @@ private fun OptionItems(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
-                    .clickable { },
+                    .clickable { if(item.id!=null) navController.navigate(item.id!!) },
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(

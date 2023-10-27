@@ -1,9 +1,11 @@
 package com.example.datencechatbotapp.screens.questionscreen
 
+import CountryPicker
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,37 +29,46 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.datencechatbotapp.models.QuestionItem
+import androidx.navigation.NavHostController
+import com.example.datencechatbotapp.AllQuestionItems
 import com.example.datencechatbotapp.R
 
 //@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun QuestionScreen(
-    questionItem: QuestionItem,
+fun QuestionScreen(navController: NavHostController) {
+    RenderQuestions(navController)
+}
+
+@Composable
+private fun RenderQuestions(
+    navController: NavHostController
 ) {
+    val allQuestions by remember {
+        mutableStateOf(AllQuestionItems)
+    }
+    val i = remember {
+        mutableStateOf(0)
+    }
+    var questionItem = allQuestions[i.value]
     Column(
         modifier = Modifier
             .fillMaxSize()
-//            .background(
-//                brush = Brush.verticalGradient(
-//                    colors = listOf(
-//                        Color.White, Color(217, 251, 114, 255)
-//                    )
-//                )
-//            )
-//            .padding(20.dp)
             .background(
-                MaterialTheme.colorScheme.onTertiary, RoundedCornerShape(40.dp)
+                MaterialTheme.colorScheme.onTertiary, RoundedCornerShape(40.dp),
             ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -66,16 +77,18 @@ fun QuestionScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(.16f)
+
         ) {
             Row(
                 modifier = Modifier
                     .shadow(
                         8.dp,
-                        RoundedCornerShape(bottomStart = 21.dp, bottomEnd = 21.dp),                    )
+                        RoundedCornerShape(bottomEnd = 30.dp, bottomStart = 30.dp),
+                    )
                     .fillMaxWidth()
                     .fillMaxHeight(0.8f)
                     .background(
-                        Color(217, 251, 114, 255), RoundedCornerShape(bottomStart = 21.dp, bottomEnd = 21.dp)
+                        Color(217, 251, 114, 255)
                     ),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start,
@@ -87,6 +100,15 @@ fun QuestionScreen(
                     modifier = Modifier
                         .padding(12.dp)
                         .border(BorderStroke(1.5.dp, Color.Black), CircleShape)
+                        .clickable(
+                            onClick = {
+                                if (i.value == 0) {
+                                    navController.popBackStack()
+                                } else {
+                                    questionItem = allQuestions[i.value--]
+                                }
+                            }
+                        )
                 )
             }
             Box(
@@ -94,7 +116,7 @@ fun QuestionScreen(
                 contentAlignment = Alignment.BottomCenter
             ) {
                 Text(
-                    text = "${questionItem.questionNumber}/9",
+                    text = "${questionItem.questionNumber}/${allQuestions.size}",
                     modifier = Modifier
                         .shadow(
                             6.dp,
@@ -116,7 +138,7 @@ fun QuestionScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "${questionItem.question}",
+                text = questionItem.question,
                 fontSize = 20.sp,
                 fontWeight = FontWeight(600),
                 textAlign = TextAlign.Center,
@@ -134,21 +156,62 @@ fun QuestionScreen(
                     .fillMaxWidth()
                     .fillMaxHeight(.65f)
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(1f)
-                        .background(MaterialTheme.colorScheme.onTertiary),
-                    contentAlignment = Alignment.TopCenter
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.pacman_watermark),
-                        contentDescription = "pacman_watermark",
-                        Modifier
-                            .fillMaxWidth(0.6f)
-                            .aspectRatio(1f)
-                    )
-                    BottomSheet(questionItem.tags)
+                if(questionItem.questionNumber==1){
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(1f)
+                            .background(
+                                MaterialTheme.colorScheme.onBackground,
+                                RoundedCornerShape(topEnd = 30.dp, topStart = 30.dp)
+                            ),
+                        contentAlignment = Alignment.TopCenter
+                    ) {
+                        CountryPicker()
+                    }
+                }
+                else if(questionItem.questionNumber==5 || questionItem.questionNumber==7){
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(1f)
+                            .background(
+                                MaterialTheme.colorScheme.onBackground,
+                                RoundedCornerShape(topEnd = 30.dp, topStart = 30.dp)
+                            ),
+                        contentAlignment = Alignment.TopCenter
+                    ) {
+                        CountryPicker()
+                    }
+                }
+                else if(questionItem.questionNumber==8){
+
+                }
+                else if (questionItem.tags != null) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(1f)
+                            .background(MaterialTheme.colorScheme.onTertiary),
+                        contentAlignment = Alignment.TopCenter
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.pacman_watermark),
+                            contentDescription = "pacman_watermark",
+                            Modifier
+                                .fillMaxWidth(0.6f)
+                                .aspectRatio(1f),
+                            colorFilter = ColorFilter.tint(Color(240, 251, 205, 255))
+                        )
+                        BottomSheet(
+                            tags = questionItem.tags!!,
+                            onTagsChanged = { updatedTags ->
+                                // Update the tags of the current questionItem
+                                allQuestions[i.value].tags = updatedTags
+
+                            }
+                        )
+                    }
                 }
             }
             Column(
@@ -167,7 +230,8 @@ fun QuestionScreen(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Button(
-                        onClick = { /*TODO*/ },
+                        onClick = {
+                        },
                         contentPadding = PaddingValues(0.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(
@@ -182,89 +246,20 @@ fun QuestionScreen(
                             imageVector = Icons.Default.KeyboardArrowRight,
                             contentDescription = "DoneBtn",
                             tint = Color.Black,
-                            modifier = Modifier.size(40.dp),
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clickable(
+                                    onClick = {
+                                        if (i.value == allQuestions.size - 1) {
+                                            navController.navigate("gettingStarted")
+                                        } else {
+                                            questionItem = allQuestions[i.value++]
+                                        }
+                                    }
+                                )
                         )
                     }
                 }
-//                Row(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//
-//                ) {
-//                    // Creating a variable to store the TextField value
-//                    var value by remember { mutableStateOf(TextFieldValue("")) }
-//
-//                    // Creating a Basic TextField bu adding
-//                    // innerTextField that will display the Text hint
-//                    BasicTextField(
-//                        value = value,
-//                        textStyle = TextStyle(
-//                            color = Color.DarkGray,
-//                            fontSize = 16.sp,
-//                            fontWeight = FontWeight(300),
-//                        ),
-//                        onValueChange = { value = it },
-//                        decorationBox = { innerTextField ->
-//                            Row(
-//                                Modifier
-//                                    .fillMaxWidth(1f)
-//                                    .padding(16.dp)
-//                                    .padding(bottom = 16.dp)
-//                                    .background(MaterialTheme.colorScheme.onTertiary, RoundedCornerShape(30.dp)),
-//                                horizontalArrangement = Arrangement.SpaceBetween,
-//                                verticalAlignment = Alignment.CenterVertically
-//
-//                            ) {
-//
-//                                Row(
-//                                    modifier = Modifier
-//                                        .fillMaxWidth(.8f)
-//                                        .padding(horizontal = 8.dp),
-//                                    horizontalArrangement = Arrangement.Start,
-//                                    verticalAlignment = Alignment.CenterVertically
-//
-//                                ) {
-//                                    Image(
-//                                        painter = painterResource(R.drawable.pacman_logo),
-//                                        contentDescription = "icn",
-//                                        modifier = Modifier
-//                                            .size(32.dp),
-//                                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.surfaceVariant)
-//
-//                                    )
-//                                    if (value.text.isEmpty()) {
-//                                        Text(
-//                                            "Add a tag...",
-//                                            Modifier.padding(8.dp, 0.dp, 0.dp, 0.dp),
-//                                            fontSize = 16.sp,
-//                                            fontWeight = FontWeight(300),
-//                                            color = MaterialTheme.colorScheme.surfaceVariant
-//                                        )
-//                                    }
-//                                    innerTextField()
-//                                }
-//                                Button(
-//                                    onClick = { /*TODO*/ },
-//                                    modifier = Modifier
-//                                        .width(45.dp)
-//                                        .aspectRatio(1f),
-//                                    contentPadding = PaddingValues(0.dp),
-//                                    colors = ButtonDefaults.buttonColors(
-//                                        containerColor = Color(
-//                                            0xFFD1F26E
-//                                        )
-//                                    ),
-//                                ) {
-//                                    Icon(
-//                                        imageVector = Icons.Default.Done,
-//                                        contentDescription = "DoneBtn",
-//                                        tint = Color.Black
-//                                    )
-//                                }
-//                            }
-//                        },
-//                    )
-//                }
             }
         }
 

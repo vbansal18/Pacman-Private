@@ -1,78 +1,101 @@
+@file:OptIn(ExperimentalFoundationApi::class, ExperimentalFoundationApi::class)
+
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowRight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.example.datencechatbotapp.models.DragAnchors
 import kotlin.math.roundToInt
 
-@Preview(showSystemUi = true, showBackground = true)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DraggableTextLowLevel() {
+fun DraggableBtn(navController: NavHostController) {
+    val density = LocalDensity.current
+    val state = remember {
+        AnchoredDraggableState(
+            initialValue = DragAnchors.Start,
+            positionalThreshold = { distance: Float -> distance * 0.5f },
+            velocityThreshold = { with(density) { 100.dp.toPx() } },
+            animationSpec = tween(),
+        )
+    }
+    val contentSize = 80.dp
+    val contentSizePx = with(density) { contentSize.toPx() }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
-            .background(MaterialTheme.colorScheme.onTertiary, RoundedCornerShape(26.dp)),
-        horizontalArrangement = Arrangement.SpaceBetween,
+            .background(MaterialTheme.colorScheme.onTertiary, RoundedCornerShape(30.dp))
+            .onSizeChanged { layoutSize ->
+                val dragEndPoint = layoutSize.width - contentSizePx
+                state.updateAnchors(
+                    DraggableAnchors {
+                        DragAnchors
+                            .values()
+                            .forEach { anchor ->
+                                anchor at dragEndPoint * anchor.fraction
+                            }
+                    }
+                )
+            },
         verticalAlignment = Alignment.CenterVertically
-
     ) {
-        var offsetX by remember { mutableStateOf(0f) }
-        var offsetY by remember { mutableStateOf(0f) }
-
         Row(
             Modifier
+                .offset {
+                    IntOffset(
+                        x = state
+                            .requireOffset()
+                            .roundToInt(), y = 0
+                    )
+                }
+                .anchoredDraggable(state, Orientation.Horizontal)
                 .fillMaxWidth(.34f)
-                .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
                 .background(Color(0xFFD5F56F), RoundedCornerShape(30.dp))
-                .size(50.dp)
-                .pointerInput(Unit) {
-                    detectDragGestures { change, dragAmount ->
-                        change.consume()
-                        offsetX += dragAmount.x
-                    }
-                },
+                .size(50.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = ">>>",
-                color = Color.Black,
-                fontSize = 23.sp,
-                fontWeight = FontWeight(400),
-                textAlign = TextAlign.Center
+            Image(
+                imageVector = Icons.Filled.KeyboardDoubleArrowRight,
+                contentDescription = null,
             )
         }
-        Text(
-            text = "Get Started",
-            modifier = Modifier
-                .fillMaxWidth(1f)
-                .padding(start = 30.dp),
-            textAlign = TextAlign.Start,
-            color = MaterialTheme.colorScheme.surface,
-        )
+        Text(text = "Get Started", textAlign = TextAlign.Start, modifier = Modifier.fillMaxWidth().padding(start = 12.dp), color = MaterialTheme.colorScheme.surface)
     }
+
+    if(state.isAnimationRunning.not() && state.currentValue.fraction==DragAnchors.End.fraction)
+    LaunchedEffect(state) {
+        // Observe changes in the AnchoredDraggableState
+        navController.navigate("question")
+    }
+
 }

@@ -19,8 +19,8 @@ import com.example.datencechatbotapp.screens.GetStartedScreen
 import com.example.datencechatbotapp.screens.Login
 import com.example.datencechatbotapp.screens.Signup
 import com.example.datencechatbotapp.screens.UploadFiles
+import com.example.datencechatbotapp.screens.leadgeneration.LeadGen
 import com.example.datencechatbotapp.screens.questionscreen.QuestionScreen
-import com.example.datencechatbotapp.screens.questionscreen.country.QuestionCountry
 import com.example.datencechatbotapp.ui.theme.DatenceChatbotAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -38,41 +38,42 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val theme = remember {
-        mutableStateOf(true)
+        mutableStateOf(false)
     }
     DatenceChatbotAppTheme(theme.value){
         val navController = rememberNavController()
-        NavHost(navController = navController, startDestination = "editProfile") {
+        NavHost(navController = navController, startDestination = "question") {
             composable(route = "signup") {
-                Signup()
-            }
-            composable(route = "editProfile") {
-                EditProfileScreen()
-            }
-            composable(route = "feedback") {
-                Feedback()
-            }
-            composable(route = "settings") {
-                SettingsScreen(theme)
+                Signup(navController)
             }
             composable(route = "login") {
-                Login()
-            }
-            composable(route = "gettingStarted") {
-                GetStartedScreen()
-            }
-            composable(route = "question") {
-                QuestionScreen(AllQuestionItems[0])
+                Login(navController)
             }
             composable(route = "dashboard") {
-                Dashboard()
+                Dashboard(navController)
+            }
+            composable(route = "gettingStarted") {
+                GetStartedScreen(navController)
             }
             composable(route = "upload") {
                 UploadFiles()
             }
-            composable(route = "country") {
-                QuestionCountry()
+            composable(route = "question") {
+                QuestionScreen(navController)
             }
+            composable(route = "leads") {
+                LeadGen()
+            }
+            composable(route = "settings") {
+                SettingsScreen(theme, navController)
+            }
+            composable(route = "feedback") {
+                Feedback(navController)
+            }
+            composable(route = "editProfile") {
+                EditProfileScreen(navController)
+            }
+
         }
     }
 }
