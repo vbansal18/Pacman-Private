@@ -91,7 +91,7 @@ private fun RenderQuestions(
                         Color(217, 251, 114, 255)
                     ),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
+                horizontalArrangement = Arrangement.SpaceBetween,
 
                 ) {
                 Icon(
@@ -110,6 +110,20 @@ private fun RenderQuestions(
                             }
                         )
                 )
+                if (i.value != allQuestions.size - 1) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowRight,
+                        contentDescription = "KeyboardArrowRight",
+                        modifier = Modifier
+                            .padding(12.dp)
+                            .border(BorderStroke(1.5.dp, Color.Black), CircleShape)
+                            .clickable(
+                                onClick = {
+                                    questionItem = allQuestions[i.value++]
+                                }
+                            )
+                    )
+                }
             }
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -154,9 +168,9 @@ private fun RenderQuestions(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(.65f)
+                    .fillMaxHeight(.7f)
             ) {
-                if(questionItem.questionNumber==1){
+                if(questionItem.tags == null){
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -165,27 +179,45 @@ private fun RenderQuestions(
                                 MaterialTheme.colorScheme.onBackground,
                                 RoundedCornerShape(topEnd = 30.dp, topStart = 30.dp)
                             ),
-                        contentAlignment = Alignment.TopCenter
-                    ) {
-                        CountryPicker()
-                    }
-                }
-                else if(questionItem.questionNumber==5 || questionItem.questionNumber==7){
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(1f)
-                            .background(
-                                MaterialTheme.colorScheme.onBackground,
-                                RoundedCornerShape(topEnd = 30.dp, topStart = 30.dp)
-                            ),
-                        contentAlignment = Alignment.TopCenter
-                    ) {
-                        CountryPicker()
-                    }
-                }
-                else if(questionItem.questionNumber==8){
+                        contentAlignment = Alignment.BottomCenter
 
+                    ) {
+                        if(questionItem.questionNumber!=0)
+                        {
+                            CountryPicker(
+                                onCountrySelected = { selectedCountries ->
+                                    // Update the tags of the current questionItem
+                                    allQuestions[i.value].countriesList = selectedCountries
+                                    println(allQuestions[i.value].countriesList)
+                                },
+                                isOneCountrySelected = {
+                                    questionItem = allQuestions[i.value++]
+                                },
+                                isSingleCountry = 1
+                            )
+                        }
+                        else
+                        {
+                            CountryPicker(
+                                onCountrySelected = { selectedCountries ->
+                                    // Update the tags of the current questionItem
+                                    allQuestions[i.value].countriesList = selectedCountries
+                                    println(allQuestions[i.value].countriesList)
+                                },
+                                isOneCountrySelected = {
+                                    questionItem = allQuestions[i.value++]
+                                },
+                                isSingleCountry = 0
+                            )
+                        }
+                        Text(
+                            text = "Country Selected : ${allQuestions[i.value].countriesList}",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(top = 50.dp),
+                            color  = MaterialTheme.colorScheme.surface
+                        )
+
+                    }
                 }
                 else if (questionItem.tags != null) {
                     Box(
@@ -214,53 +246,53 @@ private fun RenderQuestions(
                     }
                 }
             }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(1f)
-                    .background(MaterialTheme.colorScheme.onBackground),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Bottom
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(50.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Button(
-                        onClick = {
-                        },
-                        contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(
-                                0xFFD1F26E
-                            )
-                        ),
-                        modifier = Modifier
-                            .width(60.dp)
-                            .aspectRatio(1f),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowRight,
-                            contentDescription = "DoneBtn",
-                            tint = Color.Black,
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clickable(
-                                    onClick = {
-                                        if (i.value == allQuestions.size - 1) {
-                                            navController.navigate("gettingStarted")
-                                        } else {
-                                            questionItem = allQuestions[i.value++]
-                                        }
-                                    }
-                                )
-                        )
-                    }
-                }
-            }
+           Column(
+               modifier = Modifier
+                   .fillMaxWidth()
+                   .fillMaxHeight(1f)
+                   .background(MaterialTheme.colorScheme.onBackground),
+               horizontalAlignment = Alignment.CenterHorizontally,
+               verticalArrangement = Arrangement.Bottom
+           ) {
+               Row(
+                   modifier = Modifier
+                       .fillMaxWidth()
+                       .padding(50.dp),
+                   verticalAlignment = Alignment.CenterVertically,
+                   horizontalArrangement = Arrangement.Center
+               ) {
+                   Button(
+                       onClick = {
+                       },
+                       contentPadding = PaddingValues(0.dp),
+                       colors = ButtonDefaults.buttonColors(
+                           containerColor = Color(
+                               0xFFD1F26E
+                           )
+                       ),
+                       modifier = Modifier
+                           .width(60.dp)
+                           .aspectRatio(1f),
+                   ) {
+                       Icon(
+                           imageVector = Icons.Default.KeyboardArrowRight,
+                           contentDescription = "DoneBtn",
+                           tint = Color.Black,
+                           modifier = Modifier
+                               .size(40.dp)
+                               .clickable(
+                                   onClick = {
+                                       if (i.value == allQuestions.size - 1) {
+                                           navController.navigate("gettingStarted/${"question"}",)
+                                       } else {
+                                           questionItem = allQuestions[i.value++]
+                                       }
+                                   }
+                               )
+                       )
+                   }
+               }
+           }
         }
 
     }

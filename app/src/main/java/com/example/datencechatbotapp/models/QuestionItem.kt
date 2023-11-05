@@ -4,4 +4,5 @@ data class QuestionItem(
     val questionNumber: Int,
     val question: String,
     var tags: List<TagItem>?,
+    var countriesList : List<String>? = null,
 )

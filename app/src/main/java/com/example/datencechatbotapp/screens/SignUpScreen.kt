@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 import com.example.datencechatbotapp.R
 import com.example.datencechatbotapp.screens.components.EmailTextField
 import com.example.datencechatbotapp.screens.components.PasswordTextField
@@ -87,10 +88,10 @@ fun Signup(navController: NavHostController) {
                     ),
                 )
                 Image(
-                    painter = painterResource(id = R.drawable.pacman_logo_get_started),
+                    painter = rememberAsyncImagePainter(R.drawable.pdflogo),
                     contentDescription = "Datence logo",
                     contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(86.dp)
+                    modifier = Modifier.size(86.dp),
                 )
 
             }

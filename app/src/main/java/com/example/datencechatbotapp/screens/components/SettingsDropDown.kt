@@ -22,13 +22,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 
 @Composable
-fun SettingsDropDown(navController: NavHostController) {
+fun SettingsDropDown(navController: NavHostController, color: Color) {
     var expandedState by remember {
         mutableStateOf(false)
     }
@@ -41,7 +40,7 @@ fun SettingsDropDown(navController: NavHostController) {
                 expandedState = true
             }
         ) {
-            Icon(Icons.Default.MoreVert, contentDescription = "Open Menu")
+            Icon(Icons.Default.MoreVert, contentDescription = "Open Menu", tint = color)
         }
 
         DropdownMenu(

@@ -1,6 +1,8 @@
 package com.example.datencechatbotapp.data.preferences
 
+import android.app.Application
 import android.content.Context
+import android.provider.Settings.Global
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -58,7 +60,7 @@ class PreferencesDatastore(context: Context) {
         }
     }
 
-    suspend fun getUsername() = pref.data.map {
+    fun getUsername() = pref.data.map {
         it[userName]
     }
 }

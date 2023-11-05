@@ -1,5 +1,7 @@
 package com.example.datencechatbotapp.screens
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -37,20 +39,26 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.datencechatbotapp.R
+import com.example.datencechatbotapp.data.preferences.PreferencesDatastore
 import com.example.datencechatbotapp.screens.components.EmailTextField
 import com.example.datencechatbotapp.screens.components.PasswordTextField
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun EditProfileScreen(navController: NavHostController) {
+fun EditProfileScreen(navController: NavHostController, datastore: PreferencesDatastore) {
+    val mContext = LocalContext.current
+    var name by rememberSaveable { mutableStateOf("Conor McGregor") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -63,11 +71,8 @@ fun EditProfileScreen(navController: NavHostController) {
                     )
                 )
             )
-            .padding(vertical = 20.dp)
-            .padding(horizontal = 16.dp)
-            .background(MaterialTheme.colorScheme.background, RoundedCornerShape(20.dp)),
-
-
+            .padding(15.dp)
+            .background(MaterialTheme.colorScheme.background, RoundedCornerShape(20.dp))
         ) {
         Row(
             modifier = Modifier
@@ -85,7 +90,7 @@ fun EditProfileScreen(navController: NavHostController) {
                     color = MaterialTheme.colorScheme.surface,
                 ),
                 textAlign = TextAlign.Center,
-                modifier = Modifier.weight(.2f).clickable {  }
+                modifier = Modifier.weight(.2f).clickable { navController.popBackStack() }
             )
             Row(
                 modifier = Modifier
@@ -114,7 +119,9 @@ fun EditProfileScreen(navController: NavHostController) {
                     color = MaterialTheme.colorScheme.surface,
                 ),
                 textAlign = TextAlign.Center,
-                modifier = Modifier.weight(.2f).clickable {  }
+                modifier = Modifier
+                    .weight(.2f)
+                    .clickable { save(navController, mContext) }
             )
         }
         Column(
@@ -147,7 +154,13 @@ fun EditProfileScreen(navController: NavHostController) {
                     colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.surface)
                 )
             }
-            NameField()
+            NameField(
+                onNameChanged = {updatedName->
+                    name = updatedName
+                    println("name is changed" + name)
+                },
+                datastore,
+            )
 
         }
         Spacer(modifier = Modifier.height(20.dp))
@@ -158,8 +171,8 @@ fun EditProfileScreen(navController: NavHostController) {
                 .fillMaxSize()
         ) {
             items(1) {
-                EmailTextField("Your Email", R.drawable.baseline_mail_24, bgcolor = MaterialTheme.colorScheme.background)
-                PasswordTextField("Password", R.drawable.baseline_lock_24)
+//                EmailTextField("Your Email", R.drawable.baseline_mail_24, bgcolor = MaterialTheme.colorScheme.background)
+//                PasswordTextField("Password", R.drawable.baseline_lock_24)
                 BioField()
             }
         }
@@ -167,13 +180,12 @@ fun EditProfileScreen(navController: NavHostController) {
 }
 
 @Composable
-fun NameField() {
-    var name by rememberSaveable { mutableStateOf("Conor McGregor") }
+fun NameField(onNameChanged: (String) -> Unit, datastore: PreferencesDatastore) {
 
     TextField(
-        value = name,
+        value = "localName",
         textStyle = TextStyle(fontSize = 16.sp, color = Color.Black, textAlign = TextAlign.Center),
-        onValueChange = { name = it },
+        onValueChange = { onNameChanged(it) },
         singleLine = true,
         modifier = Modifier
             .padding(top = 16.dp)
@@ -186,7 +198,6 @@ fun NameField() {
             unfocusedIndicatorColor = Color.Transparent,
             cursorColor = Color.Black
         ),
-
     )
 }
 
@@ -221,4 +232,10 @@ fun BioField() {
             unfocusedIndicatorColor = Color.Transparent,
         )
     )
+}
+
+private fun save(navController: NavHostController, mContext: Context) {
+
+    navController.popBackStack()
+    Toast.makeText(mContext, "Saved Successfully!", Toast.LENGTH_SHORT).show()
 }

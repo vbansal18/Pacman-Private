@@ -1,5 +1,8 @@
 package com.example.datencechatbotapp.api
 
+import com.example.datencechatbotapp.models.GetAllCasesModel
+import com.example.datencechatbotapp.models.GetConsultancyResponse
+import com.example.datencechatbotapp.models.Session
 import com.google.gson.JsonObject
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
@@ -35,10 +38,16 @@ interface ChatbotApi {
     suspend fun changeUsername(@Body username: JsonObject) : Response<JsonObject>
 
     @GET("getAllCases?userId=sanepike")
-    suspend fun getAllCases(): Response<JsonObject>
+    suspend fun getAllCases(): Response<GetAllCasesModel>
 
     @GET("getUsername?userId=sanepike")
     suspend fun getUsername(): Response<JsonObject>
+
+    @GET("getResponse?userId=sanepike")
+    suspend fun getResponse(): Response<GetConsultancyResponse>
+
+    @GET("getLeads?userId=sanepike")
+    suspend fun getLeads(): Response<JsonObject>
 
 //    @GET("getProfilePicture?userId=sanepike")
 //    suspend fun getProfilePicture(): Call<ResponseBody>

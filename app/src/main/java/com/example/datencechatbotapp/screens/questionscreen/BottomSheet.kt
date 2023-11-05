@@ -67,7 +67,6 @@ fun BottomSheetContent(tags: List<TagItem>, onTagsChanged: (List<TagItem>) -> Un
             verticalArrangement = Arrangement.Center,
             horizontalArrangement = Arrangement.SpaceEvenly,
             maxItemsInEachRow = 2
-
         ) {
             for (tag in tags) {
                 tag.let {
@@ -80,8 +79,8 @@ fun BottomSheetContent(tags: List<TagItem>, onTagsChanged: (List<TagItem>) -> Un
                             .weight(1f),
                         selected = it.isChecked,
                         onClick = {
-                            it.isChecked = isActive.not()
-                            isActive = it.isChecked
+                            it.isChecked = !it.isChecked
+                            isActive = !isActive
                             onTagsChanged(tags)
                         },
                         label = {
@@ -103,9 +102,7 @@ fun BottomSheetContent(tags: List<TagItem>, onTagsChanged: (List<TagItem>) -> Un
             }
         }
     }
-
 }
-
 
 @Composable
 fun DragHandle(): Unit {

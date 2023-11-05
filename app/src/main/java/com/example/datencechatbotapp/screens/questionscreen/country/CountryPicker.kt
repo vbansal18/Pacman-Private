@@ -15,8 +15,11 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -29,12 +32,11 @@ import coil.compose.rememberAsyncImagePainter
 
 @Composable
 fun CountryPicker(
+    isSingleCountry: Int,
+    onCountrySelected: (List<String>?) -> Unit,
+    isOneCountrySelected: (Boolean) -> Unit,
 ) {
     val parentOptions = AllCountries
-    var selectedCountry : String = ""
-    val country by remember {
-        mutableStateOf(selectedCountry)
-    }
     Row(
         Modifier
             .fillMaxSize()
@@ -52,16 +54,35 @@ fun CountryPicker(
                 .background(Color(0x8CE4E5E7)),
         ) {
             items(parentOptions) { country ->
-                CountryRow(country.country, country.flag_url, selectedCountry)
+                CountryRow(country.country, country.flag_url, onCountrySelected, isSingleCountry, isOneCountrySelected)
             }
         }
     }
 }
 
 @Composable
-fun CountryRow(name: String, flag_url: String, selectedCountry: String, ) {
+fun CountryRow(
+    name: String,
+    flag_url: String,
+    onCountrySelected: (List<String>?) -> Unit,
+    isSingleCountry: Int,
+    isOneCountrySelected: (Boolean) -> Unit, ) {
     val color = remember {
         mutableStateOf(Color(0x8CE4E5E7))
+    }
+    var isActive by remember {
+        mutableStateOf(false)
+    }
+    if(isActive){
+        color.value = Color(218, 251, 114, 100)
+    }
+    if(!isActive){
+        color.value = Color(0x8CE4E5E7)
+    }
+    val selectedCountries by remember { mutableStateOf(mutableListOf<String>()) }
+
+    if(selectedCountries!=null){
+        onCountrySelected(selectedCountries)
     }
 
     Row(
@@ -70,7 +91,22 @@ fun CountryRow(name: String, flag_url: String, selectedCountry: String, ) {
             .height(40.dp)
             .background(color.value)
             .clickable {
-                color.value = Color(218, 251, 114, 10)
+                isActive = !isActive
+                if (isSingleCountry == 1) {
+                    selectedCountries.add(name)
+                    onCountrySelected(selectedCountries)
+                    isOneCountrySelected(true)
+                }
+                else if(isSingleCountry==0){
+                    if(isActive){
+                        selectedCountries.add(name)
+                        onCountrySelected(selectedCountries)
+                    }
+                    else{
+                        selectedCountries.remove(name)
+                        onCountrySelected(selectedCountries)
+                    }
+                }
             },
         verticalAlignment = Alignment.CenterVertically,
     ) {

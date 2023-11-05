@@ -1,5 +1,6 @@
 @file:OptIn(ExperimentalFoundationApi::class, ExperimentalFoundationApi::class)
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -28,16 +29,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.datencechatbotapp.models.DragAnchors
 import kotlin.math.roundToInt
 
+@SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DraggableBtn(navController: NavHostController) {
+fun DraggableBtn(navController: NavHostController, route: String, text: String, onClickAction: (() -> Unit)?) {
     val density = LocalDensity.current
     val state = remember {
         AnchoredDraggableState(
@@ -89,13 +91,26 @@ fun DraggableBtn(navController: NavHostController) {
                 contentDescription = null,
             )
         }
-        Text(text = "Get Started", textAlign = TextAlign.Start, modifier = Modifier.fillMaxWidth().padding(start = 12.dp), color = MaterialTheme.colorScheme.surface)
+        Text(
+            text = text,
+            textAlign = TextAlign.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 12.dp),
+            color = MaterialTheme.colorScheme.surface,
+            fontSize = 12.sp
+        )
     }
 
     if(state.isAnimationRunning.not() && state.currentValue.fraction==DragAnchors.End.fraction)
     LaunchedEffect(state) {
         // Observe changes in the AnchoredDraggableState
-        navController.navigate("question")
+        if(onClickAction!=null){
+            onClickAction()
+        }
+        else {
+            navController.navigate(route)
+        }
     }
 
 }

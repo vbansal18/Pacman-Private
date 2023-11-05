@@ -187,7 +187,7 @@ private fun AccountSettingsSection(theme: MutableState<Boolean>, navController: 
     val items = mutableListOf(
         TagItem("Edit profile", false, id = "editProfile"),
         TagItem("Change password", false),
-        TagItem("Help and support", false),
+        TagItem("Feedback", false, id = "feedback"),
     )
     val items2 = mutableListOf(TagItem("Video demo", false),)
     Column(
@@ -273,7 +273,8 @@ private fun MoreSection(navController: NavHostController) {
             fontWeight = FontWeight(500)
         )
         Spacer(modifier = Modifier.height(30.dp))
-        OptionItems(items, navController)
+//        Uncomment below to get coupons and referral in your settings
+//        OptionItems(items, navController)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
