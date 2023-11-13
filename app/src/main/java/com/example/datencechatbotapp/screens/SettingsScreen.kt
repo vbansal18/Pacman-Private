@@ -186,10 +186,9 @@ private fun UserDetailsSection() {
 private fun AccountSettingsSection(theme: MutableState<Boolean>, navController: NavHostController) {
     val items = mutableListOf(
         TagItem("Edit profile", false, id = "editProfile"),
-        TagItem("Change password", false),
         TagItem("Feedback", false, id = "feedback"),
     )
-    val items2 = mutableListOf(TagItem("Video demo", false),)
+    val items2 = mutableListOf(TagItem("Video demo", false, id = "demo_video"),)
     Column(
         modifier = Modifier
             .padding(30.dp)

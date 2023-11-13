@@ -11,3 +11,7 @@ data class Firm(
     val website : String,
     val imageLogo : Int,
 )
+
+data class SampleLeads(
+    val leadNames : List<String>
+)

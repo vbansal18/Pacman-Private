@@ -46,6 +46,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -88,8 +89,8 @@ import androidx.navigation.NavHostController
 import com.example.datencechatbotapp.R
 import com.example.datencechatbotapp.api.FileUploadViewModel
 import com.example.datencechatbotapp.data.preferences.PreferencesDatastore
+import com.example.datencechatbotapp.models.ConsultancyResponse_
 import com.example.datencechatbotapp.models.GetAllCasesModel
-import com.example.datencechatbotapp.models.GetConsultancyResponse
 import com.example.datencechatbotapp.screens.components.SettingsDropDown
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -105,7 +106,7 @@ fun Dashboard(
     datastore: PreferencesDatastore,
     viewModel: FileUploadViewModel
 ) {
-    val firstTime = remember { mutableStateOf(false) }
+    val firstTime = remember { mutableStateOf(true) }
     Column(
         modifier = Modifier
             .fillMaxSize(1f)
@@ -328,7 +329,9 @@ fun RenderAllCases(viewModel: FileUploadViewModel, navController: NavHostControl
                                             // if permission is granted we are displaying a toast message.
                                             Toast
                                                 .makeText(
-                                                    context, "Permissions Granted..", Toast.LENGTH_SHORT
+                                                    context,
+                                                    "Permissions Granted..",
+                                                    Toast.LENGTH_SHORT
                                                 )
                                                 .show()
                                         } else {
@@ -366,7 +369,7 @@ fun RenderAllCases(viewModel: FileUploadViewModel, navController: NavHostControl
             }
         }
         Button(
-            onClick = {navController.navigate("upload")},
+            onClick = { navController.navigate("upload") },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(213, 245, 111, 255),
                 contentColor = Color.Black
@@ -499,16 +502,21 @@ private fun Consultancy(pagerState: PagerState) {
 
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.consultancy_image),
+                    painter = painterResource(id = R.drawable.consultancy_graphic),
                     contentDescription = "consultancy_image",
-                    modifier = Modifier.size(150.dp)
+                    modifier = Modifier
+                        .height(150.dp)
+                        .width(180.dp)
                 )
                 Text(
-                    text = "PacMan: Your AI legal guide, swiftly tackling hurdles for your dream projects",
+                    text = "Unlock AI-Powered Data Protection and Privacy Compliance with Our Expert Consultancy",
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.fillMaxWidth(.9f)
+                    modifier = Modifier
+                        .fillMaxWidth(.9f)
+                        .fillMaxHeight(.7f)
+                        .padding(top = 20.dp)
                 )
             }
             Button(
@@ -619,16 +627,23 @@ private fun Suggestions() {
 
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.consultancy_image),
+                    painter = painterResource(id = R.drawable.suggestions_graphic),
                     contentDescription = "consultancy_image",
-                    modifier = Modifier.size(150.dp)
+                    modifier = Modifier
+                        .height(150.dp)
+                        .width(180.dp)
+
+
                 )
                 Text(
-                    text = "PacMan: Your AI legal guide, swiftly tackling hurdles for your dream projects",
+                    text = "Elevate Your Data Protection and Privacy Compliance with AI-Driven Recommendations.",
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.fillMaxWidth(.9f)
+                    modifier = Modifier
+                        .fillMaxWidth(.9f)
+                        .fillMaxHeight(.7f)
+                        .padding(top = 20.dp)
                 )
             }
             Button(
@@ -736,22 +751,26 @@ private fun LeadGeneration(navController: NavHostController) {
                 )
             }
             Column(
-                modifier = Modifier.weight(.7f),
+                modifier = Modifier.weight(.8f),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
 
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.consultancy_image),
+                    painter = painterResource(id = R.drawable.lead_graphic),
                     contentDescription = "consultancy_image",
-                    modifier = Modifier.size(150.dp)
+                    modifier = Modifier
+                        .height(150.dp)
+                        .width(180.dp)
                 )
                 Text(
-                    text = "PacMan: Your AI legal guide, swiftly tackling hurdles for your dream projects",
+                    text = "Supercharge Lead Generation while Ensuring Data Protection and Privacy Compliance with AI",
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.fillMaxWidth(.9f)
+                    modifier = Modifier
+                        .fillMaxWidth(.9f)
+                        .padding(top = 5.dp)
                 )
             }
             Button(
@@ -785,7 +804,7 @@ private fun LeadGeneration(navController: NavHostController) {
         }
         Button(
             onClick = {
-                navController.navigate("gettingStarted/${"dashboard"}")
+                navController.navigate("demo_video")
             }, colors = ButtonDefaults.buttonColors(
                 containerColor = Color(213, 245, 111, 255), contentColor = Color.Black
             ), modifier = Modifier
@@ -832,7 +851,7 @@ fun requestPermission(activity: Activity) {
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun generatePDF(context: Context, consultancy: GetConsultancyResponse) {
+fun generatePDF(context: Context, consultancy: ConsultancyResponse_) {
     val fileName = "Pacman Report.pdf"
     val directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
     val file = File(directory, fileName)
@@ -990,13 +1009,20 @@ fun generatePDF(context: Context, consultancy: GetConsultancyResponse) {
         for (subheading in subheadings) {
             // Check if there's enough space for the next subheading
             if (yPos + 20f > pageInfo.pageHeight) {
-                addPageNumber(canvas, pdfDocument.pages.size + 1)  // Add page number to the new page
+                addPageNumber(
+                    canvas,
+                    pdfDocument.pages.size + 1
+                )  // Add page number to the new page
                 pdfDocument.finishPage(page)  // Finish the current page
-                val newPageInfo = PdfDocument.PageInfo.Builder(595, 842, pdfDocument.pages.size + 1).create()
+                val newPageInfo =
+                    PdfDocument.PageInfo.Builder(595, 842, pdfDocument.pages.size + 1).create()
                 page = pdfDocument.startPage(newPageInfo)  // Start a new page
                 canvas = page.canvas
                 yPos = 140f  // Reset the Y position for the new page
-                addPageNumber(canvas, pdfDocument.pages.size + 1)  // Add page number to the new page
+                addPageNumber(
+                    canvas,
+                    pdfDocument.pages.size + 1
+                )  // Add page number to the new page
 
             }
 
@@ -1007,13 +1033,20 @@ fun generatePDF(context: Context, consultancy: GetConsultancyResponse) {
             for (line in subHeadingLines) {
                 // Check if there's enough space for the next line
                 if (yPos + 150f > pageInfo.pageHeight) {
-                    addPageNumber(canvas, pdfDocument.pages.size + 1)  // Add page number to the new page
+                    addPageNumber(
+                        canvas,
+                        pdfDocument.pages.size + 1
+                    )  // Add page number to the new page
                     pdfDocument.finishPage(page)  // Finish the current page
-                    val newPageInfo = PdfDocument.PageInfo.Builder(595, 842, pdfDocument.pages.size + 1).create()
+                    val newPageInfo =
+                        PdfDocument.PageInfo.Builder(595, 842, pdfDocument.pages.size + 1).create()
                     page = pdfDocument.startPage(newPageInfo)  // Start a new page
                     canvas = page.canvas
                     yPos = 140f  // Reset the Y position for the new page
-                    addPageNumber(canvas, pdfDocument.pages.size + 1)  // Add page number to the new page
+                    addPageNumber(
+                        canvas,
+                        pdfDocument.pages.size + 1
+                    )  // Add page number to the new page
 
                 }
                 canvas.drawText(line, 50f, yPos, subtitle)
@@ -1051,7 +1084,8 @@ fun generatePDF(context: Context, consultancy: GetConsultancyResponse) {
     ).show()
 
     // Create a notification to inform the user that the PDF has been downloaded
-    val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    val notificationManager =
+        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     // Notification channel is required for Android Oreo and later
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -1067,7 +1101,8 @@ fun generatePDF(context: Context, consultancy: GetConsultancyResponse) {
     val openIntent = Intent(Intent.ACTION_VIEW)
     openIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
     openIntent.data = pdfFileUri
-    val pendingIntent = PendingIntent.getActivity(context, 0, openIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+    val pendingIntent =
+        PendingIntent.getActivity(context, 0, openIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
     // Build the notification
     val notification = Notification.Builder(context, "pdf_download_channel")
@@ -1108,6 +1143,7 @@ fun splitTextIntoLines(text: String, paint: Paint, maxWidth: Float): List<String
 
     return lines
 }
+
 fun addPageNumber(canvas: Canvas, pageNumber: Int) {
     val paint = Paint()
     paint.textSize = 14f
@@ -1115,13 +1151,15 @@ fun addPageNumber(canvas: Canvas, pageNumber: Int) {
     paint.textAlign = Paint.Align.CENTER
 
     val pageNumberText = "Page $pageNumber"
-    val pageWidth = ((canvas.width)/2).toFloat()
+    val pageWidth = ((canvas.width) / 2).toFloat()
     val pageHeight = canvas.height.toFloat()
 
     canvas.drawText(pageNumberText, pageWidth, pageHeight - 50f, paint)
 }
+
 fun getDownloadedPDFUri(context: Context, pdfFileName: String): Uri? {
-    val downloadsDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+    val downloadsDirectory =
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
     val downloadsPath = downloadsDirectory.absolutePath
 
     // Query the MediaStore to find the PDF file in the "Downloads" directory

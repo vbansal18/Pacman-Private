@@ -10,6 +10,7 @@ var AllQuestionItems  =
             1,
             "Which country are you based in?",
             null,
+            null
         ),
         QuestionItem(
             2,
@@ -65,6 +66,7 @@ var AllQuestionItems  =
         QuestionItem(
             5,
             "From which country are you collecting the data?",
+            null,
             null
         ),
         QuestionItem(
@@ -87,13 +89,14 @@ var AllQuestionItems  =
         QuestionItem(
             7,
             "In which country are you storing the data?",
+            null,
             null
         ),
         QuestionItem(
             8,
             "Do you collect children's data?",
             mutableListOf(
-                TagItem("Yes", false),
+                TagItem("Yes", true),
                 TagItem("No", false),
             )
         ),

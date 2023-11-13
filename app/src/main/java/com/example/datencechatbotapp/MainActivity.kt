@@ -7,8 +7,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -17,8 +19,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.datencechatbotapp.api.FileUploadViewModel
 import com.example.datencechatbotapp.data.preferences.PreferencesDatastore
+import com.example.datencechatbotapp.models.UploadAnswersResponse
 import com.example.datencechatbotapp.screens.ConsultancyScreen
 import com.example.datencechatbotapp.screens.Dashboard
+import com.example.datencechatbotapp.screens.DemoVideoPlayer
 import com.example.datencechatbotapp.screens.EditProfileScreen
 import com.example.datencechatbotapp.screens.Feedback
 import com.example.datencechatbotapp.screens.GetStartedScreen
@@ -37,11 +41,28 @@ class MainActivity : ComponentActivity() {
         setContent {
             val datastore = PreferencesDatastore(this)
             val viewModel = viewModel<FileUploadViewModel>()
-
             App(datastore, viewModel)
         }
     }
 }
+var uploadAnswersResponse by mutableStateOf(
+    UploadAnswersResponse(
+        baseCountry = null,
+        industry = null,
+        dataTypes = listOf(),
+        dataSubjects = listOf(),
+        collectingFromCountries = listOf(),
+        purposes = listOf(),
+        storageCountry = listOf(),
+        isChildrenDataCollected = true,
+        haveHandlingMechanism = false,
+        handlingMechanisms = listOf(),
+        haveStorageMechanism = false,
+        storageMechanisms = listOf(),
+        haveRiskAssessmentMechanism = false,
+        riskAssessmentMechanisms = listOf(),
+    )
+)
 
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
@@ -52,10 +73,13 @@ fun App(datastore: PreferencesDatastore, viewModel: FileUploadViewModel) {
     DatenceChatbotAppTheme(theme.value){
         val navController = rememberNavController()
 
-        NavHost(navController = navController, startDestination = "login") {
+        NavHost(navController = navController, startDestination = "upload") {
 
             composable(route = "signup") {
                 Signup(navController)
+            }
+            composable(route = "demo_video") {
+                DemoVideoPlayer(navController)
             }
 
             composable(route = "login") {
@@ -77,7 +101,7 @@ fun App(datastore: PreferencesDatastore, viewModel: FileUploadViewModel) {
 
 
             composable(route = "upload") {
-                UploadFiles()
+                UploadFiles(viewModel, navController)
             }
 
             composable(route = "question") {

@@ -5,7 +5,7 @@ data class GetAllCasesModel(
     val allCases : List<Session>
 )
 data class Session(
-    val consultancy: GetConsultancyResponse,
+    val consultancy: ConsultancyResponse_,
     val lawFirmNames: List<String>,
     val timestamp: String
 )

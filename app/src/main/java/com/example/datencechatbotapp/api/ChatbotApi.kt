@@ -2,6 +2,7 @@ package com.example.datencechatbotapp.api
 
 import com.example.datencechatbotapp.models.GetAllCasesModel
 import com.example.datencechatbotapp.models.GetConsultancyResponse
+import com.example.datencechatbotapp.models.SampleLeads
 import com.example.datencechatbotapp.models.Session
 import com.google.gson.JsonObject
 import okhttp3.MultipartBody
@@ -47,14 +48,6 @@ interface ChatbotApi {
     suspend fun getResponse(): Response<GetConsultancyResponse>
 
     @GET("getLeads?userId=sanepike")
-    suspend fun getLeads(): Response<JsonObject>
-
-//    @GET("getProfilePicture?userId=sanepike")
-//    suspend fun getProfilePicture(): Call<ResponseBody>
-}
-
-interface ImageServiceApi{
-    @GET("getProfilePicture?userId=sanepike")
-    suspend fun getProfilePicture(): Call<ResponseBody>
+    suspend fun getLeads(): Response<SampleLeads>
 
 }

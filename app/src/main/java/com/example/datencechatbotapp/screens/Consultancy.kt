@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.datencechatbotapp.R
+import com.example.datencechatbotapp.models.ConsultancyResponse_
 import com.example.datencechatbotapp.models.GetConsultancyResponse
 import com.example.datencechatbotapp.screens.components.SettingsDropDown
 import com.example.datencechatbotapp.screens.leadgeneration.fadingEdge
@@ -69,10 +70,10 @@ fun ConsultancyScreen(navController: NavHostController, consultancy_data: String
     var isEvaluateCurrentMechanismsNull by remember {
         mutableStateOf(false)
     }
-    var consultancy by remember { mutableStateOf<GetConsultancyResponse?>(null) }
+    var consultancy by remember { mutableStateOf<ConsultancyResponse_?>(null) }
     LaunchedEffect(Unit) {
         val parsedConsultancy = async { gson.fromJson(consultancy_data, GetConsultancyResponse::class.java) }
-        consultancy = parsedConsultancy.await()
+        consultancy = parsedConsultancy.await().seniorAssociateSays
         Log.d("TAG", "In launchedEffect : $consultancy")
         if(consultancy!!.consultancyResponses.storingData.evaluateCurrentMechanisms==null || consultancy!!.consultancyResponses.handlingData.evaluateCurrentMechanisms==null || consultancy!!.consultancyResponses.riskAssessment.evaluateCurrentMechanisms==null){
             isEvaluateCurrentMechanismsNull=true

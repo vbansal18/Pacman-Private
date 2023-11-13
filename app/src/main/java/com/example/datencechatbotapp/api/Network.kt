@@ -1,11 +1,15 @@
 package com.example.datencechatbotapp.api
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.datencechatbotapp.models.GetAllCasesModel
 import com.example.datencechatbotapp.models.GetConsultancyResponse
+import com.example.datencechatbotapp.models.SampleLeads
 import com.example.datencechatbotapp.models.Session
 import com.google.gson.JsonObject
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -28,9 +32,9 @@ object RetrofitClient {
     fun create(): ChatbotApi {
 
         val okhttpClient = OkHttpClient.Builder()
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(2000, TimeUnit.SECONDS)
+            .writeTimeout(2000, TimeUnit.SECONDS)
+            .readTimeout(2000, TimeUnit.SECONDS)
             .addInterceptor {
                 Log.d("URL", it.request().url.toString())
                 it.proceed(it.request())
@@ -124,24 +128,21 @@ class FileUploadViewModel : ViewModel() {
         return chatbotApi.getResponse()
     }
 
-    suspend fun getLeads(): Response<JsonObject> {
+    suspend fun getLeads(): Response<SampleLeads> {
         return chatbotApi.getLeads()
     }
 
-    val httpClient = OkHttpClient.Builder()
-        // Add any necessary configurations here
-        .build()
-
-    val retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
-        .client(httpClient)
-        .addConverterFactory(ScalarsConverterFactory.create()) // ScalarsConverterFactory for raw bytes
-        .build()
-
-    val imageService = retrofit.create(ImageServiceApi::class.java)
 }
 
 
+fun isNetworkAvailable(context: Context): Boolean {
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val network = connectivityManager.activeNetwork
+    val capabilities = connectivityManager.getNetworkCapabilities(network)
+    return capabilities != null &&
+            (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
+}
 
 
 
