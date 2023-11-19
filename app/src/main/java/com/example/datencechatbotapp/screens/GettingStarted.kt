@@ -130,11 +130,11 @@ fun GetStartedScreen(
         }
     }
 }
+var consultancy_data: GetConsultancyResponse? by mutableStateOf(null)
 
 @Composable
 private fun Submitted(navController: NavHostController, viewModel: FileUploadViewModel) {
     val gson = Gson()
-    var consultancy_data: GetConsultancyResponse? by remember { mutableStateOf(null) }
     var btnText by remember {
         mutableStateOf("Get Results")
     }
@@ -219,7 +219,7 @@ private fun Submitted(navController: NavHostController, viewModel: FileUploadVie
                             println("GettingStarted consultancy : ${argsConsultancy.await()}")
                             withContext(Dispatchers.Main) {
                                 if (argsConsultancy.await() != null) {
-                                    navController.navigate("consultancy/${argsConsultancy.await()}")
+                                    navController.navigate("consultancy")
                                 }
                             }
                         }

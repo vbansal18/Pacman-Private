@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.example.datencechatbotapp.models.FeedbackModel
 import com.example.datencechatbotapp.models.GetAllCasesModel
 import com.example.datencechatbotapp.models.GetConsultancyResponse
 import com.example.datencechatbotapp.models.SampleLeads
@@ -113,6 +114,10 @@ class FileUploadViewModel : ViewModel() {
         val jsonObject = JsonObject()
         jsonObject.addProperty("username", name)
         return chatbotApi.changeUsername(jsonObject)
+    }
+
+    suspend fun feedback(feedbackModel: FeedbackModel): Response<JsonObject> {
+        return chatbotApi.feedback(feedbackModel)
     }
 
 

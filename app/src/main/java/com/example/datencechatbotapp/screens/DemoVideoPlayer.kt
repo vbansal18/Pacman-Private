@@ -50,19 +50,9 @@ fun DemoVideoPlayer(navController: NavHostController) {
 
 @Composable
 fun Exoplayer(mContext: Context, navController: NavHostController) {
-    var orientation by remember {
-        mutableStateOf(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-    }
-    if(orientation==ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE){
-        LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-    }
-    if(orientation==ActivityInfo.SCREEN_ORIENTATION_PORTRAIT){
-        LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-    }
-
     Box(
         Modifier.background(Color.Transparent).fillMaxSize(),
-        contentAlignment = TopStart
+        contentAlignment = TopEnd
     ) {
 
         VideoPlayer(
@@ -108,11 +98,9 @@ fun Exoplayer(mContext: Context, navController: NavHostController) {
         Text(
             text = "Skip Video",
             Modifier
-                .padding(top = 60.dp)
-                .rotate(270f)
+                .padding(top = 30.dp, end = 30.dp)
                 .background(MaterialTheme.colorScheme.surface)
                 .clickable {
-                    orientation = (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
                     navController.navigate("upload")
                 },
             color = MaterialTheme.colorScheme.background
@@ -120,19 +108,6 @@ fun Exoplayer(mContext: Context, navController: NavHostController) {
     }
 }
 
-@Composable
-fun LockScreenOrientation(orientation: Int) {
-    val context = LocalContext.current
-    DisposableEffect(orientation) {
-        val activity = context.findActivity() ?: return@DisposableEffect onDispose {}
-        val originalOrientation = activity.requestedOrientation
-        activity.requestedOrientation = orientation
-        onDispose {
-            // restore original orientation when view disappears
-            activity.requestedOrientation = originalOrientation
-        }
-    }
-}
 
 fun Context.findActivity(): Activity? = when (this) {
     is Activity -> this

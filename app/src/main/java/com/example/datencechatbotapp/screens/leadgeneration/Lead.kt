@@ -3,10 +3,12 @@ package com.example.datencechatbotapp.screens.leadgeneration
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,7 +23,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,10 +45,8 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -61,18 +60,30 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavHostController
 import com.example.datencechatbotapp.AllLeadsData
 import com.example.datencechatbotapp.R
 import com.example.datencechatbotapp.models.Firm
 import com.example.datencechatbotapp.models.LeadsDataClass
+import com.example.datencechatbotapp.models.SampleLeads
+import com.example.datencechatbotapp.screens.consultancy_data
+import com.example.datencechatbotapp.screens.generatePDF
 import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlin.text.Typography.bullet
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun LeadGen(currentLeadIndex_: Int?, allLeads_: String?, navController: NavHostController) {
+fun LeadGen(
+    currentLeadIndex_: Int?,
+    allLeads_: String?,
+    navController: NavHostController,
+    session_number: Int?
+) {
     var currentLeadIndex by remember {
         mutableStateOf(currentLeadIndex_!!)
     }
@@ -88,13 +99,19 @@ fun LeadGen(currentLeadIndex_: Int?, allLeads_: String?, navController: NavHostC
     }
 
     LaunchedEffect(Unit) {
-        val parsedleads = async { gson.fromJson(allLeads_, LeadsDataClass::class.java) }
-        allLeads = parsedleads.await()
-        currentLead = setCurrentLead(allLeads!!, currentLeadIndex)
-        Log.d("TAG", "In launchedEffect : allLeads: $allLeads")
+        try {
+            val parsedleads = async { gson.fromJson(allLeads_, LeadsDataClass::class.java) }
+            allLeads = parsedleads.await()
+            currentLead = setCurrentLead(allLeads!!, currentLeadIndex)
+            Log.d("TAG", "In launchedEffect : allLeads: $allLeads")
+
+        }
+        catch (e:Exception){
+            Log.d("Error", e.message.toString())
+        }
     }
     println("currentLeadIndex : $currentLeadIndex")
-    println("allLeads : $allLeads")
+    println("allLeads : ${allLeads}")
     if(currentLead!=null){
         currentLead = setCurrentLead(allLeads!!, currentLeadIndex)
         Column(
@@ -286,10 +303,285 @@ fun LeadGen(currentLeadIndex_: Int?, allLeads_: String?, navController: NavHostC
                             "\n" +
                             "[Your Phone Number] "
 
-                    val uri = Uri.parse("mailto:$recipientEmail?subject=${Uri.encode(subject)}&body=${Uri.encode(message)}")
-                    val emailIntent = Intent(Intent.ACTION_SENDTO, uri)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        try {
+                            val pdfUri = generatePDF(context, cases!!.allCases[session_number!!].consultancy)
+                            Log.d("Debug", "pdfUri: $pdfUri")
 
-                    composeEmail.launch(emailIntent)
+                            if (pdfUri != null) {
+                                println("pdfUri : $pdfUri")
+//                                val uri = Uri.parse("mailto:$recipientEmail?subject=${subject}&body=${message}&attachment=$pdfUri")
+//                                val emailIntent = Intent(Intent.ACTION_SENDTO, uri)
+                                val emailIntent = Intent(Intent.ACTION_SEND)
+                                emailIntent.type = "application/pdf"
+                                emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf(recipientEmail))
+                                emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject)
+                                emailIntent.putExtra(Intent.EXTRA_TEXT, message)
+                                emailIntent.putExtra(Intent.EXTRA_STREAM, pdfUri)
+                                emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+                                startActivity(context, emailIntent, null)
+
+//                                composeEmail.launch(emailIntent)
+                            }
+                        }
+                        catch (e:Exception){
+                            Log.d("Error", e.message.toString())
+                        }
+                    }
+
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(213, 245, 111, 255),
+                    contentColor = Color.Black
+                ),
+                modifier = Modifier
+                    .fillMaxWidth(.7f)
+            ) {
+                Text(
+                    text = "Connect",
+                    color = Color(75, 75, 75, 255),
+                    fontSize = 18.sp,
+                )
+            }
+        }
+    }
+}
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun LeadGenFromResponse(currentLeadIndex_: Int?, navController: NavHostController) {
+    var currentLeadIndex by remember {
+        mutableStateOf(currentLeadIndex_!!)
+    }
+
+    val context = LocalContext.current
+    var allLeads by remember { mutableStateOf<SampleLeads?>(leads) }
+    var currentLead by remember { mutableStateOf<Firm?>(null) }
+    val composeEmail: ActivityResultLauncher<Intent> = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        // Handle the result, if needed
+    }
+    currentLead = setCurrentLeadFromResponse(allLeads!!, currentLeadIndex)
+
+    if(currentLead!=null){
+        currentLead = setCurrentLeadFromResponse(allLeads!!, currentLeadIndex)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.secondary,
+                            MaterialTheme.colorScheme.secondary,
+                            MaterialTheme.colorScheme.primary
+                        )
+                    )
+                )
+                .padding(15.dp)
+                .background(MaterialTheme.colorScheme.background, RoundedCornerShape(20.dp))
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Button(
+                    onClick = {
+                    },
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent
+                    ),
+                ) {
+                    Text(
+                        text = "<",
+                        color = MaterialTheme.colorScheme.surface,
+                        textAlign = TextAlign.Start,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight(300),
+                        modifier = Modifier
+                            .scale(scaleY = 1.5f, scaleX = 0.8f)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = rememberRipple(
+                                    color = Color.Black,
+                                    bounded = true,
+                                    radius = 20.dp
+                                ),
+                                onClick = {
+                                    currentLeadIndex -= 1
+                                    if (currentLeadIndex < 0) {
+                                        currentLeadIndex += 3
+                                    }
+                                }
+                            )
+                    )
+                }
+                Button(
+                    onClick = {
+                    },
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent
+                    ),
+                ) {
+                    Text(
+                        text = ">",
+                        color = MaterialTheme.colorScheme.surface,
+                        textAlign = TextAlign.End,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight(300),
+                        modifier = Modifier
+                            .scale(scaleY = 1.5f, scaleX = 0.8f)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = rememberRipple(
+                                    color = Color.Black,
+                                    bounded = true,
+                                    radius = 20.dp
+                                ),
+                                onClick = {
+                                    currentLeadIndex += 1
+                                    if (currentLeadIndex >= 3) {
+                                        currentLeadIndex %= 3
+                                    }
+                                }
+                            )
+                    )
+                }
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .padding(vertical = 20.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = currentLead!!.imageLogo),
+                    contentDescription = "leadgen",
+                    Modifier
+                        .width(150.dp)
+                        .height(100.dp),
+                    contentScale = ContentScale.FillWidth
+                )
+                Text(
+                    text = currentLead!!.name,
+                    fontSize = 18.sp,
+                    color = MaterialTheme.colorScheme.surface,
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Row {
+                    Text(
+                        text = "Website : ",
+                        color = MaterialTheme.colorScheme.surface,
+                        fontSize = 14.sp
+                    )
+                    Text(
+                        text = currentLead!!.website,
+                        color = Color(153, 157, 255, 255),
+                        fontSize = 14.sp,
+                        modifier = Modifier.clickable {
+                            openWebsite(context,currentLead!!.website)
+                        },
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+            Divider(
+                thickness = Dp.Hairline,
+                color = MaterialTheme.colorScheme.surface,
+            )
+            val bottomFade = Brush.verticalGradient(0.8f to Color.Black, 1f to Color.Transparent)
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(.85f)
+                    .padding(20.dp)
+                    .fadingEdge(bottomFade),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                val messages = currentLead!!.description
+                val paragraphStyle = ParagraphStyle(textIndent = TextIndent(restLine = 12.sp))
+
+                items(1) {
+                    Text(
+                        buildAnnotatedString {
+                            messages.forEach {
+                                withStyle(style = paragraphStyle) {
+                                    append(bullet)
+                                    append("\t\t")
+                                    append(it)
+                                    append("\n")
+                                }
+                            }
+                        },
+                        color = MaterialTheme.colorScheme.surface,
+                    )
+                }
+            }
+            Button(
+                onClick = {
+                    val recipientEmail = currentLead!!.email // Change to your recipient's email
+                    val subject = "Collaboration Opportunity: Data Protection Regulation Compliance Assistance"
+                    val message = "Dear ${currentLead!!.name}, \n" +
+                            "\n" +
+                            " \n" +
+                            "I hope this email finds you in good spirits. We are reaching out to explore the possibility of collaborating with your esteemed law firm to ensure our compliance with data protection regulations. Our company, [Your Company Name], operates in [Your Industry] and handles data daily. In light of the evolving data protection landscape, we seek your expertise in conducting a comprehensive audit of our existing practices, revising our privacy policies, assisting in data breach response planning, and ensuring our employees are well-versed in data protection laws. We believe your guidance will be invaluable. To provide you with a comprehensive understanding of our current data protection framework, a PDF report detailing our existing data protection policies and practices is attached for your review. \n" +
+                            "\n" +
+                            "\n" +
+                            "We would appreciate the opportunity to discuss the specifics further. Please let us know a suitable time for a meeting or call. Your assistance will not only fortify our compliance efforts but also enhance the trust of our clients and stakeholders. Thank you for considering our request, and we look forward to the possibility of working together. \n" +
+                            "\n" +
+                            " \n" +
+                            "\n" +
+                            "Warm regards, \n" +
+                            " \n" +
+                            "\n" +
+                            "[Your Name] \n" +
+                            "\n" +
+                            "[Your Title] \n" +
+                            "\n" +
+                            "[Your Company Name] \n" +
+                            "\n" +
+                            "[Your Email Address] \n" +
+                            "\n" +
+                            "[Your Phone Number] "
+
+                    CoroutineScope(Dispatchers.Main).launch {
+                        try {
+                            val pdfUri = generatePDF(context, consultancy_data!!.seniorAssociateSays)
+                            Log.d("Debug", "pdfUri: $pdfUri")
+
+                            if (pdfUri != null) {
+                                println("pdfUri : $pdfUri")
+//                                val uri = Uri.parse("mailto:$recipientEmail?subject=${subject}&body=${message}&attachment=$pdfUri")
+//                                val emailIntent = Intent(Intent.ACTION_SENDTO, uri)
+                                val emailIntent = Intent(Intent.ACTION_SEND)
+                                emailIntent.type = "application/pdf"
+                                emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf(recipientEmail))
+                                emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject)
+                                emailIntent.putExtra(Intent.EXTRA_TEXT, message)
+                                emailIntent.putExtra(Intent.EXTRA_STREAM, pdfUri)
+                                emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+                                startActivity(context, emailIntent, null)
+
+//                                composeEmail.launch(emailIntent)
+                            }
+                        }
+                        catch (e:Exception){
+                            Log.d("Error", e.message.toString())
+                        }
+                    }
+
 
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -309,7 +601,8 @@ fun LeadGen(currentLeadIndex_: Int?, allLeads_: String?, navController: NavHostC
     }
 }
 
-private fun openWebsite(context: Context, url: String) {
+
+fun openWebsite(context: Context, url: String) {
     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
     context.startActivity(intent)
 }
@@ -356,6 +649,21 @@ fun setCurrentDesc(name: String): List<String> {
 fun setCurrentLead(allLeads: LeadsDataClass, currentLeadIndex: Int?): Firm? {
 
     return when (allLeads.lawFirmNames[currentLeadIndex!!]) {
+        "SPICE ROUTE" -> AllLeadsData.SPICE_ROUTE
+        "IKIGAI LAW" -> AllLeadsData.IKIGAI_LAW
+        "SAMVAD PARTNERS" -> AllLeadsData.SAMVAD_PARTNERS
+        "DSK LEGAL" -> AllLeadsData.DSK_LEGAL
+        "INDUS LAW" -> AllLeadsData.INDUS_LAW
+        "KHAITAN & CO." -> AllLeadsData.KHAITAN
+        "TRILEGAL" -> AllLeadsData.TRILEGAL
+        "AZB AND PARTNERS" -> AllLeadsData.AZB_AND_PARTNERS
+        "MAJMUDAR AND PARTNERS" -> AllLeadsData.MAJMUDAR_AND_PARTNERS
+        else -> AllLeadsData.SPICE_ROUTE
+    }
+}
+fun setCurrentLeadFromResponse(allLeads: SampleLeads, currentLeadIndex: Int?): Firm? {
+
+    return when (allLeads.leadNames[currentLeadIndex!!]) {
         "SPICE ROUTE" -> AllLeadsData.SPICE_ROUTE
         "IKIGAI LAW" -> AllLeadsData.IKIGAI_LAW
         "SAMVAD PARTNERS" -> AllLeadsData.SAMVAD_PARTNERS

@@ -94,25 +94,6 @@ fun SettingsDropDown(navController: NavHostController, color: Color) {
                     )
             )
 
-            DropdownMenuItem(
-                text = {
-                    Text("Contact Us")
-                },
-                onClick = {
-                    expandedState = false
-                },
-                trailingIcon = {
-                    Icon(
-                        Icons.Filled.Phone,
-                        contentDescription = null
-                    )
-                },
-                colors = MenuDefaults.itemColors(
-                    textColor = MaterialTheme.colorScheme.surface,
-                    trailingIconColor = MaterialTheme.colorScheme.surface,
-
-                    )
-            )
         }
     }
 }

@@ -12,27 +12,33 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.map
 
 class PreferencesDatastore(context: Context) {
-    val Context.datastore: DataStore<Preferences> by preferencesDataStore("USER_DATA")
+
     val pref = context.datastore
-
     companion object {
-        var userName = stringPreferencesKey("USER_NAME")
+        private val Context.datastore: DataStore<Preferences> by preferencesDataStore("USER_DATA")
         var isLogin = booleanPreferencesKey("IS_USER_LOGIN")
+        var isSignOutStarted = booleanPreferencesKey("IS_SIGN_OUT_STARTED")
         var isLightModeActive = booleanPreferencesKey("IS_LIGHT_MODE")
-        var isUserHaveExistingCases = booleanPreferencesKey("IS_USER_HAVING_EXISTING_CASES")
-        var isUserFirstTimeLoginEver = booleanPreferencesKey("IS_USER_FIRST_TIME_LOGIN_EVER")
-        var profilePicture = stringPreferencesKey("PROFILE_PICTURE")
+        var userName = stringPreferencesKey("USER_NAME")
+        var profilePic = stringPreferencesKey("PROFILE_PIC")
+
     }
 
-    suspend fun setUsername(username: String) {
-        pref.edit {
-            it[userName] = username
-        }
-    }
 
     suspend fun setIsLogin(islogin: Boolean) {
         pref.edit {
             it[isLogin] = islogin
+        }
+    }
+    suspend fun setIsSignOutStarted(IsSignOutStarted_: Boolean) {
+        pref.edit {
+            it[isSignOutStarted] = IsSignOutStarted_
+        }
+    }
+    suspend fun setUser(userName_: String, profilePic_: String) {
+        pref.edit {
+            it[userName] = userName_
+            it[profilePic] = profilePic_
         }
     }
 
@@ -42,25 +48,34 @@ class PreferencesDatastore(context: Context) {
         }
     }
 
-    suspend fun setisUserHaveExistingCases(IsUserHaveExistingCases: Boolean) {
-        pref.edit {
-            it[isUserHaveExistingCases] = IsUserHaveExistingCases
-        }
+    fun getIsLogin() = pref.data.map {
+        BooleanModel(
+            value  = it[isLogin]?:false,
+        )
+    }
+    fun getIsSignOutStarted() = pref.data.map {
+        BooleanModel(
+            value  = it[isSignOutStarted]?:false,
+        )
+    }
+    fun getisLightModeActive() = pref.data.map {
+        BooleanModel(
+            value  = it[isLightModeActive]?:true,
+        )
     }
 
-    suspend fun setisUserFirstTimeLoginEver(IsUserFirstTimeLoginEver: Boolean) {
-        pref.edit {
-            it[isUserFirstTimeLoginEver] = IsUserFirstTimeLoginEver
-        }
-    }
-
-    suspend fun profilePicture(ProfilePicture: String) {
-        pref.edit {
-            it[profilePicture] = ProfilePicture
-        }
-    }
-
-    fun getUsername() = pref.data.map {
-        it[userName]
+    fun getUser() = pref.data.map {
+        StringModel(
+            name  = it[userName]?:"",
+            pic  = it[profilePic]?:"",
+        )
     }
 }
+
+data class BooleanModel(
+    val value : Boolean,
+)
+data class StringModel(
+    val name : String,
+    val pic : String
+)

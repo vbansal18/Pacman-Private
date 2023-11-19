@@ -44,10 +44,13 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.datencechatbotapp.api.FileUploadViewModel
 import com.example.datencechatbotapp.models.GetAllCasesModel
+import com.example.datencechatbotapp.models.SampleLeads
 import com.example.datencechatbotapp.screens.components.SettingsDropDown
+import com.example.datencechatbotapp.screens.consultancy_data
 import com.example.datencechatbotapp.screens.generatePDF
 import kotlinx.coroutines.async
 
+var cases by mutableStateOf<GetAllCasesModel?>(null)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AllLeadsScreen(
@@ -56,7 +59,6 @@ fun AllLeadsScreen(
     viewModel: FileUploadViewModel
 ) {
     val context = LocalContext.current
-    var cases by remember { mutableStateOf<GetAllCasesModel?>(null) }
     LaunchedEffect(Unit) {
         try {
             val parsedcases = async { viewModel.getAllCases().body() }
@@ -131,10 +133,10 @@ fun AllLeadsScreen(
                             "                \"${cases!!.allCases[sessionNumber].lawFirmNames[0]}\",\n" +
                             "                \"${cases!!.allCases[sessionNumber].lawFirmNames[1]}\",\n" +
                             "                \"${cases!!.allCases[sessionNumber].lawFirmNames[2]}\"\n" +
-                            "     ],\n" +
+                            "     ]\n" +
                             "}"
                     println(leads)
-                    LeadItem(cases!!.allCases[sessionNumber].lawFirmNames[it], navController, leads, it)
+                    LeadItem(cases!!.allCases[sessionNumber].lawFirmNames[it], navController, leads, it, sessionNumber)
                 }
             }
         }
@@ -152,9 +154,110 @@ fun AllLeadsScreen(
         }
     }
 }
+var leads by  mutableStateOf<SampleLeads?>(null)
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun AllLeadsScreenFromResponse(
+    navController: NavHostController,
+    viewModel: FileUploadViewModel
+) {
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        try {
+            val parsedleads = async { viewModel.getLeads().body() }
+            leads = parsedleads.await()
+            Log.d("All Leads From Response", leads.toString())
+        } catch (e: Exception) {
+            Log.d("CasesError", "Error : $e")
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                MaterialTheme.colorScheme.onSecondary
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 15.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Button(
+                onClick = { /*TODO*/ },
+                contentPadding = PaddingValues(0.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent
+                ),
+            ) {
+                Text(
+                    text = "<",
+                    color = MaterialTheme.colorScheme.surface,
+                    textAlign = TextAlign.Start,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight(300),
+                    modifier = Modifier
+                        .scale(scaleY = 1.5f, scaleX = 0.8f)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = rememberRipple(
+                                color = Color.Black,
+                                bounded = true,
+                                radius = 20.dp
+                            ),
+                            onClick = {
+
+                            }
+                        )
+                )
+            }
+            SettingsDropDown(navController, MaterialTheme.colorScheme.surface)
+        }
+        Text(
+            text = "Further Assistance",
+            fontSize = 22.sp,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.surface
+        )
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(.85f)
+                .padding(top = 50.dp),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            if(leads!=null){
+                items(leads!!.leadNames.size){
+                    LeadItemFromResponse(leads, navController, it)
+                }
+            }
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(.9f)
+                .background(MaterialTheme.colorScheme.onTertiary, RoundedCornerShape(26.dp)),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if(leads!=null){
+                DraggableBtn(navController, "lead", "Swipe to download PDF"
+                ) {
+                    if(consultancy_data!=null){
+                        generatePDF(context, consultancy_data!!.seniorAssociateSays)
+                    }
+                }
+            }
+        }
+    }
+}
 
 @Composable
-private fun LeadItem(name: String, navController: NavHostController, leads: String, i: Int) {
+private fun LeadItemFromResponse(name: SampleLeads?, navController: NavHostController, i: Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -162,7 +265,57 @@ private fun LeadItem(name: String, navController: NavHostController, leads: Stri
             .padding(horizontal = 20.dp)
             .clickable(
                 onClick = {
-                    navController.navigate("lead/${i}/${leads}")
+                    Log.d("Leads", "$i , $name")
+                    navController.navigate("leadGenFromResponseScreen/${i}")
+                }
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    )  {
+        Image(
+            painter = painterResource(id = setCurrentLogo(name!!.leadNames[i])),
+            contentDescription = "leadlogo",
+            modifier = Modifier
+                .weight(.2f)
+                .size(50.dp),
+            contentScale = ContentScale.FillWidth,
+        )
+        Text(
+            text = name.leadNames[i],
+            fontSize = 15.sp,
+            modifier = Modifier
+                .weight(.7f)
+                .padding(start = 20.dp),
+            textAlign = TextAlign.Start,
+            color = MaterialTheme.colorScheme.surface
+        )
+        Text(
+            text = ">",
+            color = MaterialTheme.colorScheme.surface,
+            textAlign = TextAlign.End,
+            fontSize = 22.sp,
+            fontWeight = FontWeight(300),
+            modifier = Modifier
+                .scale(scaleY = 1.5f, scaleX = 0.8f)
+        )
+    }
+}
+@Composable
+private fun LeadItem(
+    name: String,
+    navController: NavHostController,
+    leads: String,
+    i: Int,
+    sessionNumber: Int
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 10.dp)
+            .padding(horizontal = 20.dp)
+            .clickable(
+                onClick = {
+                    navController.navigate("lead/${i}/${leads}/${sessionNumber}")
                 }
             ),
         verticalAlignment = Alignment.CenterVertically,

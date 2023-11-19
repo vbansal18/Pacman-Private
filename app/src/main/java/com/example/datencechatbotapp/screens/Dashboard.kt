@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
-
 package com.example.datencechatbotapp.screens
 
 import android.Manifest
@@ -11,6 +9,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -81,18 +80,24 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 import com.example.datencechatbotapp.R
 import com.example.datencechatbotapp.api.FileUploadViewModel
 import com.example.datencechatbotapp.data.preferences.PreferencesDatastore
 import com.example.datencechatbotapp.models.ConsultancyResponse_
 import com.example.datencechatbotapp.models.GetAllCasesModel
 import com.example.datencechatbotapp.screens.components.SettingsDropDown
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -106,161 +111,194 @@ fun Dashboard(
     datastore: PreferencesDatastore,
     viewModel: FileUploadViewModel
 ) {
-    val firstTime = remember { mutableStateOf(true) }
-    Column(
-        modifier = Modifier
-            .fillMaxSize(1f)
-            .background(Color(217, 251, 114, 255))
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(.1f),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Button(
-                onClick = { },
-                modifier = Modifier.weight(.1f),
-                contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent
-                ),
-            ) {
-                Text(
-                    text = "<",
-                    color = Color.Black,
-                    textAlign = TextAlign.Center,
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight(300),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(.5f)
-                        .scale(scaleY = 2f, scaleX = 1f)
-                        .clickable(interactionSource = remember { MutableInteractionSource() },
-                            indication = rememberRipple(
-                                color = Color.Black, bounded = true, radius = 20.dp
-                            ),
-                            onClick = {
-                                navController.popBackStack()
-                            })
-                )
-            }
-            Column(
-                modifier = Modifier
-                    .weight(.8f)
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.Start
-            ) {
-                Text(
-                    text = "Dashboard",
-                    textAlign = TextAlign.Start,
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
-            SettingsDropDown(navController, Color.Black)
-        }
-        val context = LocalContext.current
-        val scope = rememberCoroutineScope()
-        var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-        val launcher =
-            rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-                uri?.let {
-                    selectedImageUri = it
-                    scope.launch {
-                        try {
-                            val response =
-                                viewModel.changeProfilePicture(selectedImageUri!!, context)
-                            if (response.isSuccessful) {
-                                Log.d("SUCCESSFULLVAJHHDui", response.body().toString())
-                            }
-                        } catch (e: Exception) {
-                            Log.d("ERRORERDHJHT", "Error: ${e.message}}")
 
-                        }
-                    }
-
-                }
-            }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .defaultMinSize(minHeight = 200.dp)
-                .fillMaxHeight(.34f),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            RenderNameAndImage(viewModel, datastore)
+    var islogin by remember {
+        mutableStateOf<Boolean?>(null)
+    }
+    var isSignOutStarted by remember {
+        mutableStateOf<Boolean?>(null)
+    }
+    val firstTime = remember { mutableStateOf<Boolean?>(null) }
+    println("out before Dashboard -> islogin : $islogin and isSignOutStarted : $isSignOutStarted")
+    LaunchedEffect(Unit) {
+        datastore.getIsLogin().collect {
+            islogin = it.value
+            println("In Dashboard -> islogin : $islogin\n isSignOutStarted : $isSignOutStarted")
         }
+    }
+    LaunchedEffect(Unit) {
+        datastore.getIsSignOutStarted().collect {
+            isSignOutStarted = it.value
+            firstTime.value = isSignOutStarted==true
+            println("In Dashboard -> islogin : $islogin\n isSignOutStarted : $isSignOutStarted")
+        }
+    }
+
+    println("out after Dashboard -> islogin : $islogin and isSignOutStarted : $isSignOutStarted")
+
+    if(isSignOutStarted!=null && firstTime.value!=null){
         Column(
             modifier = Modifier
                 .fillMaxSize(1f)
-                .background(
-                    MaterialTheme.colorScheme.background, RoundedCornerShape(
-                        topEnd = 36.dp, topStart = 36.dp
-                    )
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween,
+                .background(Color(217, 251, 114, 255))
         ) {
-            if (firstTime.value) {
-                val pagerState = rememberPagerState(
-                    initialPage = 0, initialPageOffsetFraction = 0f
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(.1f),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(
+                    onClick = { },
+                    modifier = Modifier.weight(.1f),
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent
+                    ),
                 ) {
-                    3
-                    // provide pageCount
+                    Text(
+                        text = "<",
+                        color = Color.Black,
+                        textAlign = TextAlign.Center,
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight(300),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(.5f)
+                            .scale(scaleY = 2f, scaleX = 1f)
+                            .clickable(interactionSource = remember { MutableInteractionSource() },
+                                indication = rememberRipple(
+                                    color = Color.Black, bounded = true, radius = 20.dp
+                                ),
+                                onClick = {
+                                    navController.popBackStack()
+                                })
+                    )
                 }
+                Column(
+                    modifier = Modifier
+                        .weight(.8f)
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = "Dashboard",
+                        textAlign = TextAlign.Start,
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+                SettingsDropDown(navController, Color.Black)
+            }
+            val context = LocalContext.current
+            val scope = rememberCoroutineScope()
+            var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+            val launcher =
+                rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+                    uri?.let {
+                        selectedImageUri = it
+                        scope.launch {
+                            try {
+                                val response =
+                                    viewModel.changeProfilePicture(selectedImageUri!!, context)
+                                if (response.isSuccessful) {
+                                    Log.d("SUCCESSFULLVAJHHDui", response.body().toString())
+                                }
+                            } catch (e: Exception) {
+                                Log.d("ERRORERDHJHT", "Error: ${e.message}}")
 
-                HorizontalPager(state = pagerState) { page ->
-                    when (page) {
-
-                        0 -> {
-                            Consultancy(pagerState)
-                        }
-
-                        1 -> {
-                            Suggestions()
-                        }
-
-                        2 -> {
-                            LeadGeneration(navController)
+                            }
                         }
 
                     }
                 }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = 200.dp)
+                    .fillMaxHeight(.34f),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                RenderNameAndImage(datastore)
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(1f)
+                    .background(
+                        MaterialTheme.colorScheme.background, RoundedCornerShape(
+                            topEnd = 36.dp, topStart = 36.dp
+                        )
+                    ),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                if (firstTime.value==true) {
+                    LaunchedEffect(Unit){
+                        datastore.setIsSignOutStarted(false)
+                    }
+                    val pagerState = rememberPagerState(
+                        initialPage = 0, initialPageOffsetFraction = 0f
+                    ) {
+                        3
+                        // provide pageCount
+                    }
 
-            } else {
-                Text(
-                    text = "Case Files",
-                    fontSize = 22.sp,
-                    color = Color(0xFF98AF4E),
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 20.dp)
-                        .background(Color.Transparent, RoundedCornerShape(28.dp))
-                        .padding(vertical = 10.dp, horizontal = 40.dp),
-                )
-                RenderAllCases(viewModel, navController)
+                    HorizontalPager(state = pagerState) { page ->
+                        when (page) {
 
+                            0 -> {
+                                Consultancy()
+                            }
+
+                            1 -> {
+                                Suggestions()
+                            }
+
+                            2 -> {
+                                LeadGeneration(navController)
+                            }
+
+                        }
+                    }
+
+                } else {
+                    Text(
+                        text = "Case Files",
+                        fontSize = 22.sp,
+                        color = Color(0xFF98AF4E),
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 20.dp)
+                            .background(Color.Transparent, RoundedCornerShape(28.dp))
+                            .padding(vertical = 10.dp, horizontal = 40.dp),
+                    )
+                    RenderAllCases(viewModel, navController)
+
+                }
             }
         }
+
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RenderAllCases(viewModel: FileUploadViewModel, navController: NavHostController) {
 
     var cases by remember { mutableStateOf<GetAllCasesModel?>(null) }
     LaunchedEffect(Unit) {
-        try {
-            val parsedcases = async { viewModel.getAllCases().body() }
-            cases = parsedcases.await()
-        } catch (e: Exception) {
-            Log.d("CasesError", "Error : $e")
+        launch(Dispatchers.IO){
+            try {
+                val parsedcases = async { viewModel.getAllCases().body() }
+                cases = parsedcases.await()
+            } catch (e: Exception) {
+                Log.d("CasesError", "Error : $e")
+            }
         }
     }
     var no_of_cases by remember {
@@ -273,8 +311,7 @@ fun RenderAllCases(viewModel: FileUploadViewModel, navController: NavHostControl
     val activity = (LocalContext.current as? Activity)
 
     Column(
-        Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column(
             Modifier
@@ -286,8 +323,7 @@ fun RenderAllCases(viewModel: FileUploadViewModel, navController: NavHostControl
             verticalArrangement = Arrangement.Top
         ) {
             FlowRow(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 maxItemsInEachRow = 2,
             ) {
                 cases?.let {
@@ -309,11 +345,11 @@ fun RenderAllCases(viewModel: FileUploadViewModel, navController: NavHostControl
                             }
                             .padding(20.dp)) {
                             Text(
-//                            text = cases!!.allCases[i].timestamp,
-                                text = "12/10",
+                                text = cases!!.allCases[i].timestamp,
                                 color = Color.White,
                                 fontSize = 20.sp,
-                                fontWeight = FontWeight(700)
+                                fontWeight = FontWeight(700),
+                                overflow = TextOverflow.Ellipsis
                             )
                             Text(
                                 text = "Case : ${i + 1}",
@@ -369,85 +405,62 @@ fun RenderAllCases(viewModel: FileUploadViewModel, navController: NavHostControl
             }
         }
         Button(
-            onClick = { navController.navigate("upload") },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(213, 245, 111, 255),
-                contentColor = Color.Black
-            ),
-            modifier = Modifier
+            onClick = { navController.navigate("upload") }, colors = ButtonDefaults.buttonColors(
+                containerColor = Color(213, 245, 111, 255), contentColor = Color.Black
+            ), modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .height(70.dp)
                 .padding(vertical = 10.dp)
         ) {
             Text(
-                text = "Create New Case",
-                color = Color(75, 75, 75, 255),
-                fontSize = 16.sp
+                text = "Create New Case", color = Color(75, 75, 75, 255), fontSize = 16.sp
             )
         }
     }
 }
 
+
 @RequiresApi(Build.VERSION_CODES.P)
-@SuppressLint("CoroutineCreationDuringComposition", "UnrememberedMutableState")
 @Composable
 fun RenderNameAndImage(
-    viewModel: FileUploadViewModel, datastore: PreferencesDatastore
+    datastore: PreferencesDatastore
 ) {
+    var photoUrl by remember {
+        mutableStateOf<String?>(null)
+    }
     var name by remember {
-        mutableStateOf("Conor McGregor")
+        mutableStateOf<String?>(null)
     }
-    LaunchedEffect(Unit) {
-        val parsedName = async { viewModel.getUserName().body() }
-        name = parsedName.await()?.get("username").toString().trim('"')
-        datastore.setUsername(name)
-        Log.d("TAG", "In launchedEffect name : $name")
+    LaunchedEffect(Unit){
+        datastore.getUser().collect{
+            photoUrl = it.pic
+            name = it.name
+        }
     }
+    if(photoUrl!=null && name!=null){
+        Image(
+            painter = rememberAsyncImagePainter(photoUrl),
+            contentDescription = "Image",
+            modifier = Modifier
+                .size(140.dp)
+                .clip(CircleShape)
+                .background(Color.Cyan)
+        )
 
-//    var imageBitmap: Bitmap? by remember { mutableStateOf(null) }
-//
-//    LaunchedEffect(viewModel.imageService) {
-//        val response = viewModel.imageService.getProfilePicture().execute()
-//        if (response.isSuccessful) {
-//            val imageBytes = response.body()?.bytes()
-//            if (imageBytes != null) {
-//                imageBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-//            }
-//        }
-//    }
-//
-//    imageBitmap?.let { bitmap ->
-//        Image(
-//            bitmap = bitmap.asImageBitmap(),
-//            contentDescription = "Image",
-//            modifier = Modifier
-//                .size(140.dp)
-//                .clip(CircleShape)
-//                .background(Color.Cyan)
-//        )
-//    }
-    Image(
-        painter = painterResource(id = R.drawable.baseline_person_24),
-        contentDescription = "Image",
-        modifier = Modifier
-            .size(140.dp)
-            .clip(CircleShape)
-            .background(Color.Cyan)
-    )
-
-    Text(
-        text = name,
-        fontSize = 16.sp,
-        modifier = Modifier
-            .padding(16.dp)
-            .background(MaterialTheme.colorScheme.onBackground, RoundedCornerShape(28.dp))
-            .padding(vertical = 10.dp, horizontal = 40.dp),
-        color = MaterialTheme.colorScheme.surface,
-    )
+        Text(
+            text = name!!,
+            fontSize = 16.sp,
+            modifier = Modifier
+                .padding(16.dp)
+                .background(MaterialTheme.colorScheme.onBackground, RoundedCornerShape(28.dp))
+                .padding(vertical = 10.dp, horizontal = 40.dp),
+            color = MaterialTheme.colorScheme.surface,
+        )
+    }
 }
 
 @Composable
-private fun Consultancy(pagerState: PagerState) {
+private fun Consultancy() {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -468,35 +481,7 @@ private fun Consultancy(pagerState: PagerState) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Button(
-                onClick = { /*TODO*/ },
-                modifier = Modifier.weight(.15f),
-                contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent
-                ),
-            ) {
-
-                Text(
-                    text = "",
-                    color = MaterialTheme.colorScheme.surface,
-                    textAlign = TextAlign.Center,
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight(300),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .scale(scaleY = 2f, scaleX = 1f)
-                        .clickable(interactionSource = remember { MutableInteractionSource() },
-                            indication = rememberRipple(
-                                color = Color.Black, bounded = true, radius = 20.dp
-                            ),
-                            onClick = {
-
-                            })
-                )
-            }
             Column(
-                modifier = Modifier.weight(.7f),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
 
@@ -517,31 +502,6 @@ private fun Consultancy(pagerState: PagerState) {
                         .fillMaxWidth(.9f)
                         .fillMaxHeight(.7f)
                         .padding(top = 20.dp)
-                )
-            }
-            Button(
-                onClick = { /*TODO*/ },
-                modifier = Modifier.weight(.15f),
-                contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent
-                ),
-            ) {
-
-                Text(
-                    text = ">",
-                    color = MaterialTheme.colorScheme.surface,
-                    textAlign = TextAlign.Center,
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight(300),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .scale(scaleY = 2f, scaleX = 1f)
-                        .clickable(interactionSource = remember { MutableInteractionSource() },
-                            indication = rememberRipple(
-                                color = Color.Black, bounded = true, radius = 20.dp
-                            ),
-                            onClick = {})
                 )
             }
         }
@@ -568,7 +528,6 @@ private fun Consultancy(pagerState: PagerState) {
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.surface)
             )
         }
-
     }
 }
 
@@ -593,35 +552,7 @@ private fun Suggestions() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Button(
-                onClick = { /*TODO*/ },
-                modifier = Modifier.weight(.15f),
-                contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent
-                ),
-            ) {
-
-                Text(
-                    text = "<",
-                    color = MaterialTheme.colorScheme.surface,
-                    textAlign = TextAlign.Center,
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight(300),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .scale(scaleY = 2f, scaleX = 1f)
-                        .clickable(interactionSource = remember { MutableInteractionSource() },
-                            indication = rememberRipple(
-                                color = Color.Black, bounded = true, radius = 20.dp
-                            ),
-                            onClick = {
-
-                            })
-                )
-            }
             Column(
-                modifier = Modifier.weight(.7f),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
 
@@ -645,34 +576,6 @@ private fun Suggestions() {
                         .fillMaxHeight(.7f)
                         .padding(top = 20.dp)
                 )
-            }
-            Button(
-                onClick = { /*TODO*/ },
-                modifier = Modifier.weight(.15f),
-                contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent
-                ),
-            ) {
-
-                Text(
-                    text = ">",
-                    color = MaterialTheme.colorScheme.surface,
-                    textAlign = TextAlign.Center,
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight(300),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .scale(scaleY = 2f, scaleX = 1f)
-                        .clickable(interactionSource = remember { MutableInteractionSource() },
-                            indication = rememberRipple(
-                                color = Color.Black, bounded = true, radius = 20.dp
-                            ),
-                            onClick = {
-
-                            })
-                )
-
             }
 
         }
@@ -723,35 +626,7 @@ private fun LeadGeneration(navController: NavHostController) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Button(
-                onClick = { /*TODO*/ },
-                modifier = Modifier.weight(.15f),
-                contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent
-                ),
-            ) {
-
-                Text(
-                    text = "<",
-                    color = MaterialTheme.colorScheme.surface,
-                    textAlign = TextAlign.Center,
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight(300),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .scale(scaleY = 2f, scaleX = 1f)
-                        .clickable(interactionSource = remember { MutableInteractionSource() },
-                            indication = rememberRipple(
-                                color = Color.Black, bounded = true, radius = 20.dp
-                            ),
-                            onClick = {
-
-                            })
-                )
-            }
             Column(
-                modifier = Modifier.weight(.8f),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
 
@@ -772,49 +647,23 @@ private fun LeadGeneration(navController: NavHostController) {
                         .fillMaxWidth(.9f)
                         .padding(top = 5.dp)
                 )
+                Spacer(modifier = Modifier.height(10.dp))
+                Button(
+                    onClick = {
+                        navController.navigate("demo_video")
+                    }, colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(213, 245, 111, 255), contentColor = Color.Black
+                    ), modifier = Modifier
+                        .padding(32.dp, 32.dp, 32.dp, 50.dp)
+                        .fillMaxWidth(1f)
+                ) {
+                    Text(
+                        text = "Continue", color = Color(75, 75, 75, 255), fontSize = 18.sp
+                    )
+                }
             }
-            Button(
-                onClick = { /*TODO*/ },
-                modifier = Modifier.weight(.15f),
-                contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent
-                ),
-            ) {
-
-                Text(
-                    text = "",
-                    color = MaterialTheme.colorScheme.surface,
-                    textAlign = TextAlign.Center,
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight(300),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .scale(scaleY = 2f, scaleX = 1f)
-                        .clickable(interactionSource = remember { MutableInteractionSource() },
-                            indication = rememberRipple(
-                                color = Color.Black, bounded = true, radius = 20.dp
-                            ),
-                            onClick = {
-
-                            })
-                )
-            }
-
         }
-        Button(
-            onClick = {
-                navController.navigate("demo_video")
-            }, colors = ButtonDefaults.buttonColors(
-                containerColor = Color(213, 245, 111, 255), contentColor = Color.Black
-            ), modifier = Modifier
-                .padding(32.dp, 32.dp, 32.dp, 50.dp)
-                .fillMaxWidth(1f)
-        ) {
-            Text(
-                text = "Continue", color = Color(75, 75, 75, 255), fontSize = 18.sp
-            )
-        }
+
     }
 }
 
@@ -851,15 +700,24 @@ fun requestPermission(activity: Activity) {
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun generatePDF(context: Context, consultancy: ConsultancyResponse_) {
-    val fileName = "Pacman Report.pdf"
+fun generatePDF(context: Context, consultancy: ConsultancyResponse_): Uri? {
     val directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-    val file = File(directory, fileName)
-
+    var fileName = "Pacman Report.pdf"
+    var file = File(directory, fileName)
+    var i by mutableStateOf(1)
     if (!directory.exists()) {
         directory.mkdirs()
     }
-
+    while (file.exists()) {
+        fileName = "Pacman Report $i.pdf"
+        file = File(directory, fileName)
+        i++
+        Log.d("Debug - 1", "PDF file already exists at: ${file.absolutePath}")
+        // Proceed with creating and sending the email intent
+    }
+    if(!file.exists()){
+        Log.d("Debug - 1", "PDF file does not exist at: ${file.absolutePath}")
+    }
     val pdfDocument = PdfDocument()
     var pagesData by mutableStateOf(
         listOf<PageData>()
@@ -867,39 +725,30 @@ fun generatePDF(context: Context, consultancy: ConsultancyResponse_) {
     if (consultancy.consultancyResponses.storingData.evaluateCurrentMechanisms != null && consultancy.consultancyResponses.handlingData.evaluateCurrentMechanisms != null && consultancy.consultancyResponses.riskAssessment.evaluateCurrentMechanisms != null) {
         pagesData = listOf(
             PageData(
-                "Legal Regulations",
-                listOf(
+                "Legal Regulations", listOf(
                     consultancy.consultancyResponses.handlingData.legalRegulations,
                     consultancy.consultancyResponses.storingData.legalRegulations,
                     consultancy.consultancyResponses.riskAssessment.legalRegulations,
                 )
-            ),
-            PageData(
-                "Industry Best Practices",
-                listOf(
+            ), PageData(
+                "Industry Best Practices", listOf(
                     consultancy.consultancyResponses.handlingData.industryBestPractices,
                     consultancy.consultancyResponses.storingData.industryBestPractices,
                     consultancy.consultancyResponses.riskAssessment.industryBestPractices,
                 )
-            ),
-            PageData(
-                "Evaluation of mechanism",
-                listOf(
+            ), PageData(
+                "Evaluation of mechanism", listOf(
                     consultancy.consultancyResponses.handlingData.evaluateCurrentMechanisms,
                     consultancy.consultancyResponses.storingData.evaluateCurrentMechanisms,
                     consultancy.consultancyResponses.riskAssessment.evaluateCurrentMechanisms,
                 )
-            ),
-            PageData(
-                "Page out of precedent",
-                listOf(
+            ), PageData(
+                "Page out of precedent", listOf(
                     consultancy.previousRulings,
                     consultancy.lawViolations,
                 )
-            ),
-            PageData(
-                "Suggestions for Improvement",
-                listOf(
+            ), PageData(
+                "Suggestions for Improvement", listOf(
                     consultancy.consultancyResponses.handlingData.suggestions,
                     consultancy.consultancyResponses.storingData.suggestions,
                     consultancy.consultancyResponses.riskAssessment.suggestions,
@@ -909,31 +758,24 @@ fun generatePDF(context: Context, consultancy: ConsultancyResponse_) {
     } else {
         pagesData = listOf(
             PageData(
-                "Legal Regulations",
-                listOf(
+                "Legal Regulations", listOf(
                     consultancy.consultancyResponses.handlingData.legalRegulations,
                     consultancy.consultancyResponses.storingData.legalRegulations,
                     consultancy.consultancyResponses.riskAssessment.legalRegulations
                 )
-            ),
-            PageData(
-                "Industry Best Practices",
-                listOf(
+            ), PageData(
+                "Industry Best Practices", listOf(
                     consultancy.consultancyResponses.handlingData.industryBestPractices,
                     consultancy.consultancyResponses.storingData.industryBestPractices,
                     consultancy.consultancyResponses.riskAssessment.industryBestPractices
                 )
-            ),
-            PageData(
-                "Page out of precedent",
-                listOf(
+            ), PageData(
+                "Page out of precedent", listOf(
                     consultancy.previousRulings,
                     consultancy.lawViolations,
                 )
-            ),
-            PageData(
-                "Suggestions for Improvement",
-                listOf(
+            ), PageData(
+                "Suggestions for Improvement", listOf(
                     consultancy.consultancyResponses.handlingData.suggestions,
                     consultancy.consultancyResponses.storingData.suggestions,
                     consultancy.consultancyResponses.riskAssessment.suggestions
@@ -970,10 +812,7 @@ fun generatePDF(context: Context, consultancy: ConsultancyResponse_) {
     val spaceBetween = (availableHeight - 320F) / 2
 
     canvas.drawBitmap(
-        scaledbmp,
-        (centerX - scaledbmp.width / 2),
-        (170f - scaledbmp.height / 2),
-        paint
+        scaledbmp, (centerX - scaledbmp.width / 2), (170f - scaledbmp.height / 2), paint
     )
     canvas.drawText("PacMan - A guide in need.", centerX, 320F, title)
     canvas.drawText(
@@ -1010,8 +849,7 @@ fun generatePDF(context: Context, consultancy: ConsultancyResponse_) {
             // Check if there's enough space for the next subheading
             if (yPos + 20f > pageInfo.pageHeight) {
                 addPageNumber(
-                    canvas,
-                    pdfDocument.pages.size + 1
+                    canvas, pdfDocument.pages.size + 1
                 )  // Add page number to the new page
                 pdfDocument.finishPage(page)  // Finish the current page
                 val newPageInfo =
@@ -1020,8 +858,7 @@ fun generatePDF(context: Context, consultancy: ConsultancyResponse_) {
                 canvas = page.canvas
                 yPos = 140f  // Reset the Y position for the new page
                 addPageNumber(
-                    canvas,
-                    pdfDocument.pages.size + 1
+                    canvas, pdfDocument.pages.size + 1
                 )  // Add page number to the new page
 
             }
@@ -1034,8 +871,7 @@ fun generatePDF(context: Context, consultancy: ConsultancyResponse_) {
                 // Check if there's enough space for the next line
                 if (yPos + 150f > pageInfo.pageHeight) {
                     addPageNumber(
-                        canvas,
-                        pdfDocument.pages.size + 1
+                        canvas, pdfDocument.pages.size + 1
                     )  // Add page number to the new page
                     pdfDocument.finishPage(page)  // Finish the current page
                     val newPageInfo =
@@ -1044,8 +880,7 @@ fun generatePDF(context: Context, consultancy: ConsultancyResponse_) {
                     canvas = page.canvas
                     yPos = 140f  // Reset the Y position for the new page
                     addPageNumber(
-                        canvas,
-                        pdfDocument.pages.size + 1
+                        canvas, pdfDocument.pages.size + 1
                     )  // Add page number to the new page
 
                 }
@@ -1105,17 +940,22 @@ fun generatePDF(context: Context, consultancy: ConsultancyResponse_) {
         PendingIntent.getActivity(context, 0, openIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
     // Build the notification
-    val notification = Notification.Builder(context, "pdf_download_channel")
-        .setSmallIcon(R.drawable.pdflogo)
-        .setContentTitle("PDF Downloaded")
-        .setContentText("Your PDF has been downloaded.")
-        .setContentIntent(pendingIntent)
-        .setAutoCancel(true)
-        .build()
+    val notification =
+        Notification.Builder(context, "pdf_download_channel").setSmallIcon(R.drawable.pdflogo)
+            .setContentTitle("PDF Downloaded").setContentText("Your PDF has been downloaded.")
+            .setContentIntent(pendingIntent).setAutoCancel(true).build()
 
     // Show the notification
     notificationManager.notify(0, notification)
-
+    Log.d("Debug", "pdfUri: $file")
+    if (file.exists()) {
+        Log.d("Debug - 2", "PDF file exists at: ${file.absolutePath}")
+        return FileProvider.getUriForFile(context, "com.example.datencechatbotapp.fileprovider", file)
+        // Proceed with creating and sending the email intent
+    } else {
+        Log.d("Debug - 2", "PDF file does not exist at: ${file.absolutePath}")
+    }
+    return null
 }
 
 data class PageData(var heading: String, val subheadings: List<String>)
@@ -1165,8 +1005,7 @@ fun getDownloadedPDFUri(context: Context, pdfFileName: String): Uri? {
     // Query the MediaStore to find the PDF file in the "Downloads" directory
     val uri = MediaStore.Files.getContentUri("external")
     val projection = arrayOf(
-        MediaStore.Files.FileColumns._ID,
-        MediaStore.Files.FileColumns.DATA
+        MediaStore.Files.FileColumns._ID, MediaStore.Files.FileColumns.DATA
     )
 
     val selection = "${MediaStore.Files.FileColumns.DATA} like ?"
@@ -1182,3 +1021,5 @@ fun getDownloadedPDFUri(context: Context, pdfFileName: String): Uri? {
 
     return null
 }
+
+

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Pacman</string>
+    <string name="default_web_client_id">142042730964-so2uq9ou9e8gedp4nt39pkqpbn96htfq.apps.googleusercontent.com</string>
 </resources>

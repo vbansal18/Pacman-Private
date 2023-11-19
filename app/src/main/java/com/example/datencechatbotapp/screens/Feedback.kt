@@ -1,5 +1,7 @@
 package com.example.datencechatbotapp.screens
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -42,20 +44,41 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.datencechatbotapp.api.FileUploadViewModel
+import com.example.datencechatbotapp.models.FeedbackModel
 import com.example.datencechatbotapp.models.TagItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
+private var feedback by mutableStateOf<FeedbackModel>(FeedbackModel(0, listOf<String>(), ""))
 
-@Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun Feedback(navController: NavHostController) {
+fun Feedback(navController: NavHostController, viewModel : FileUploadViewModel) {
+    var bgEnabledRating1 by remember {
+        mutableStateOf(Color(217, 217, 217, 255))
+    }
+    var bgEnabledRating2 by remember {
+        mutableStateOf(Color(217, 217, 217, 255))
+    }
+    var bgEnabledRating3 by remember {
+        mutableStateOf(Color(217, 217, 217, 255))
+    }
+    var bgEnabledRating4 by remember {
+        mutableStateOf(Color(217, 217, 217, 255))
+    }
+    var bgEnabledRating5 by remember {
+        mutableStateOf(Color(217, 217, 217, 255))
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -174,56 +197,100 @@ fun Feedback(navController: NavHostController) {
                         text = "😠", fontSize = 24.sp,
                         modifier = Modifier
                             .padding(10.dp)
-                            .background(Color(217, 217, 217, 255), RoundedCornerShape(50.dp))
+                            .background(bgEnabledRating1, RoundedCornerShape(50.dp))
                             .padding(10.dp)
+                            .clickable {
+                                feedback.rating = 1
+                                bgEnabledRating1 = Color(0xFF272323)
+                                bgEnabledRating2 = Color(217, 217, 217, 255)
+                                bgEnabledRating3 = Color(217, 217, 217, 255)
+                                bgEnabledRating4 = Color(217, 217, 217, 255)
+                                bgEnabledRating5 = Color(217, 217, 217, 255)
+                            }
                     )
                     Text(
                         text = "😒", fontSize = 24.sp,
                         modifier = Modifier
                             .padding(10.dp)
-                            .background(Color(217, 217, 217, 255), RoundedCornerShape(50.dp))
+                            .background(bgEnabledRating2, RoundedCornerShape(50.dp))
                             .padding(10.dp)
+                            .clickable {
+                                feedback.rating = 2
+                                bgEnabledRating1 = Color(217, 217, 217, 255)
+                                bgEnabledRating2 = Color(0xFF272323)
+                                bgEnabledRating3 = Color(217, 217, 217, 255)
+                                bgEnabledRating4 = Color(217, 217, 217, 255)
+                                bgEnabledRating5 = Color(217, 217, 217, 255)
+                            }
+
                     )
                     Text(
                         text = "😐", fontSize = 24.sp,
                         modifier = Modifier
                             .padding(10.dp)
-                            .background(Color(217, 217, 217, 255), RoundedCornerShape(50.dp))
+                            .background(bgEnabledRating3, RoundedCornerShape(50.dp))
                             .padding(10.dp)
+                            .clickable {
+                                feedback.rating = 3
+                                bgEnabledRating1 = Color(217, 217, 217, 255)
+                                bgEnabledRating2 = Color(217, 217, 217, 255)
+                                bgEnabledRating3 = Color(0xFF272323)
+                                bgEnabledRating4 = Color(217, 217, 217, 255)
+                                bgEnabledRating5 = Color(217, 217, 217, 255)
+                            }
+
                     )
                     Text(
                         text = "😄", fontSize = 24.sp,
                         modifier = Modifier
                             .padding(10.dp)
-                            .background(Color(217, 217, 217, 255), RoundedCornerShape(50.dp))
+                            .background(bgEnabledRating4, RoundedCornerShape(50.dp))
                             .padding(10.dp)
+                            .clickable {
+                                feedback.rating = 4
+                                bgEnabledRating1 = Color(217, 217, 217, 255)
+                                bgEnabledRating2 = Color(217, 217, 217, 255)
+                                bgEnabledRating3 = Color(217, 217, 217, 255)
+                                bgEnabledRating4 = Color(0xFF272323)
+                                bgEnabledRating5 = Color(217, 217, 217, 255)
+                            }
+
                     )
                     Text(
                         text = "😍", fontSize = 24.sp,
                         modifier = Modifier
                             .padding(10.dp)
-                            .background(Color(217, 217, 217, 255), RoundedCornerShape(50.dp))
+                            .background(bgEnabledRating5, RoundedCornerShape(50.dp))
                             .padding(10.dp)
+                            .clickable {
+                                feedback.rating = 5
+                                bgEnabledRating1 = Color(217, 217, 217, 255)
+                                bgEnabledRating2 = Color(217, 217, 217, 255)
+                                bgEnabledRating3 = Color(217, 217, 217, 255)
+                                bgEnabledRating4 = Color(217, 217, 217, 255)
+                                bgEnabledRating5 = Color(0xFF272323)
+                            }
                     )
                 }
 
             }
         }
 
-        BottomSection()
+        BottomSection(viewModel, navController)
     }
 
 
 }
 
 @Composable
-private fun BottomSection() {
+private fun BottomSection(viewModel: FileUploadViewModel, navController: NavHostController) {
     val items = mutableListOf(
         TagItem("Quality of Evaluation", false),
         TagItem("Quality of Suggestions", false),
         TagItem("Customer service", false),
         TagItem("Overall service", false),
     )
+    val context = LocalContext.current
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -259,7 +326,10 @@ private fun BottomSection() {
                     Text(text = "Describe your experience ")
                 },
                 value = comment,
-                onValueChange = { comment = it },
+                onValueChange = {
+                    comment = it
+                    feedback.message = comment.text
+                },
                 colors = TextFieldDefaults.colors(
                     focusedSupportingTextColor = Color.Gray,
                     unfocusedSupportingTextColor = Color.Gray,
@@ -274,7 +344,24 @@ private fun BottomSection() {
                     .height(100.dp)
             )
             Button(
-                onClick = {},
+                onClick = {
+                          CoroutineScope(Dispatchers.IO).launch {
+                              try {
+                                  val feedbackResponse = viewModel.feedback(feedback)
+                                  if(feedbackResponse.isSuccessful){
+                                      Log.d("responseFeedback", feedbackResponse.toString())
+                                      withContext(Dispatchers.Main){
+                                          Toast.makeText(context, "Feedback Sent Successfully", Toast.LENGTH_SHORT).show()
+                                          navController.popBackStack()
+                                      }
+                                  }
+                              }
+                              catch (e:Exception){
+                                  Log.d("responseFeedbackError", e.message.toString())
+
+                              }
+                          }
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(213, 245, 111, 255),
                     contentColor = Color.Black
@@ -322,9 +409,8 @@ private fun OptionItems(
                             .weight(.8f),
                         color = MaterialTheme.colorScheme.surface,
                     )
-                    var isActive by remember { mutableStateOf(item.isChecked) }
 
-                    CircleCheckbox(isActive, true) { isActive = !isActive }
+                    CircleCheckbox(item)
                 }
                 Spacer(Modifier.height(5.dp))
                 Divider(
@@ -337,16 +423,33 @@ private fun OptionItems(
 }
 
 @Composable
-fun CircleCheckbox(selected: Boolean, enabled: Boolean = true, onChecked: () -> Unit) {
+fun CircleCheckbox(item: TagItem,) {
 
-    val imageVector = if (selected) Icons.Filled.CheckCircle else Icons.Outlined.CheckCircle
-    val tint = if (selected) Color(105, 204, 5, 255) else Color(217, 217, 217, 255)
-    val background = if (selected) Color.White else Color(217, 217, 217, 255)
+    var isActive by remember { mutableStateOf(item.isChecked) }
+    val imageVector = if (isActive) Icons.Filled.CheckCircle else Icons.Outlined.CheckCircle
+    val tint = if (isActive) Color(105, 204, 5, 255) else Color(217, 217, 217, 255)
+    val background = if (isActive) Color.White else Color(217, 217, 217, 255)
+    if(isActive){
+        if(item.name in feedback.servicesLiked){
+//            Do nothing
+        }
+        else {
+            feedback.servicesLiked += item.name
+        }
+    }
+    else{
+        if(item.name in feedback.servicesLiked){
+            feedback.servicesLiked-=item.name
+        }
+        else {
+//            Do nothing
+        }
+    }
 
     IconButton(
-        onClick = { onChecked() },
+        onClick = { isActive = !isActive},
         modifier = Modifier.offset(x = 4.dp, y = 4.dp),
-        enabled = enabled
+        enabled = true
     ) {
 
         Icon(

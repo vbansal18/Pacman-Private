@@ -1,5 +1,6 @@
 package com.example.datencechatbotapp.api
 
+import com.example.datencechatbotapp.models.FeedbackModel
 import com.example.datencechatbotapp.models.GetAllCasesModel
 import com.example.datencechatbotapp.models.GetConsultancyResponse
 import com.example.datencechatbotapp.models.SampleLeads
@@ -37,6 +38,9 @@ interface ChatbotApi {
 
     @POST("changeUsername?userId=sanepike")
     suspend fun changeUsername(@Body username: JsonObject) : Response<JsonObject>
+
+    @POST("feedback?userId=sanepike")
+    suspend fun feedback(@Body feedback: FeedbackModel) : Response<JsonObject>
 
     @GET("getAllCases?userId=sanepike")
     suspend fun getAllCases(): Response<GetAllCasesModel>

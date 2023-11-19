@@ -65,21 +65,12 @@ import kotlinx.coroutines.async
 
 
 @Composable
-fun ConsultancyScreen(navController: NavHostController, consultancy_data: String?) {
-    val gson = Gson()
+fun ConsultancyScreen(navController: NavHostController) {
     var isEvaluateCurrentMechanismsNull by remember {
         mutableStateOf(false)
     }
+
     var consultancy by remember { mutableStateOf<ConsultancyResponse_?>(null) }
-    LaunchedEffect(Unit) {
-        val parsedConsultancy = async { gson.fromJson(consultancy_data, GetConsultancyResponse::class.java) }
-        consultancy = parsedConsultancy.await().seniorAssociateSays
-        Log.d("TAG", "In launchedEffect : $consultancy")
-        if(consultancy!!.consultancyResponses.storingData.evaluateCurrentMechanisms==null || consultancy!!.consultancyResponses.handlingData.evaluateCurrentMechanisms==null || consultancy!!.consultancyResponses.riskAssessment.evaluateCurrentMechanisms==null){
-            isEvaluateCurrentMechanismsNull=true
-        }
-    }
-    Log.d("TAG", "After launchedEffect : $consultancy")
     val screens = mutableListOf<String>(
         "legalRegulations",
         "industryBestPractices",
@@ -87,6 +78,9 @@ fun ConsultancyScreen(navController: NavHostController, consultancy_data: String
         "previousRulings",
         "suggestions"
     )
+    if(consultancy_data!=null){
+        consultancy = consultancy_data!!.seniorAssociateSays
+    }
     if(isEvaluateCurrentMechanismsNull){
         screens.removeAt(2)
     }
@@ -224,7 +218,7 @@ fun ConsultancyScreen(navController: NavHostController, consultancy_data: String
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate("allLeadsScreen") },
+                onClick = { navController.navigate("allLeadsFromResponseScreen") },
                 backgroundColor = Color(244, 255, 210, 255),
                 content = {
                     Icon(
@@ -283,10 +277,19 @@ private fun ConsultancyPage(
             horizontalAlignment = Alignment.CenterHorizontally
         ){
             val messages = mutableListOf(
-                handlingData, storingData, riskAssessment
+                "Handling Data", handlingData, "Storing Data", storingData, "Risk Assessment", riskAssessment
             )
             if(riskAssessment==null){
+                messages.removeAt(5)
+                messages.removeAt(4)
+                messages.removeAt(3)
                 messages.removeAt(2)
+                messages.removeAt(1)
+                messages.removeAt(0)
+                messages.add(0, "Previous Rulings")
+                messages.add(1, handlingData)
+                messages.add(2, "Law Violations")
+                messages.add(3, storingData)
             }
             val paragraphStyle = ParagraphStyle(textIndent = TextIndent(restLine = 12.sp))
 
@@ -295,9 +298,8 @@ private fun ConsultancyPage(
                     buildAnnotatedString {
                         messages.forEach {
                             withStyle(style = paragraphStyle) {
-                                append(Typography.bullet)
-                                append("\t\t")
                                 append(it)
+                                append("\n")
                                 append("\n")
                             }
                         }
