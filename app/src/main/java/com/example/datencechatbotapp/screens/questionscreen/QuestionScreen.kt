@@ -1,6 +1,7 @@
 package com.example.datencechatbotapp.screens.questionscreen
 
 import AllCountries
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -512,8 +513,7 @@ private fun CountryRow(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheet(questionNumber: Int) {
-    BottomSheetScaffold(
-        sheetDragHandle = { DragHandle() },
+    BottomSheetScaffold(sheetDragHandle = { DragHandle() },
         sheetPeekHeight = 110.dp,
         sheetContent = { BottomSheetContent(questionNumber) },
         containerColor = MaterialTheme.colorScheme.onBackground,
@@ -523,7 +523,6 @@ fun BottomSheet(questionNumber: Int) {
         sheetShape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
     ) {}
 }
-
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -542,35 +541,34 @@ fun BottomSheetContent(questionNumber: Int) {
             horizontalArrangement = Arrangement.SpaceEvenly,
             maxItemsInEachRow = 2
         ) {
+            var isActive by remember { mutableStateOf(false) }
+
             for (tag in allQuestions[questionNumber - 1].tags!!) {
-                tag.let {
-                    var isActive by remember {
-                        mutableStateOf(it.isChecked)
-                    }
-                    FilterChip(
-                        modifier = Modifier
-                            .padding(horizontal = 12.dp, vertical = 2.dp)
-                            .weight(1f),
-                        selected = it.isChecked,
-                        onClick = {
-                            it.isChecked = !it.isChecked
-                            isActive = !isActive
-                        },
-                        label = {
-                            Text(
-                                text = it.name,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            disabledContainerColor = MaterialTheme.colorScheme.onBackground,
-                            selectedContainerColor = Color(0xFFD4F56F),
-                            labelColor = MaterialTheme.colorScheme.surface,
-                            selectedLabelColor = Color.Black,
+                isActive = tag.isChecked
+
+                FilterChip(
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp, vertical = 2.dp)
+                        .weight(1f),
+                    selected = isActive,
+                    onClick = {
+                        tag.isChecked = !tag.isChecked
+                        isActive = !isActive
+                    },
+                    label = {
+                        Text(
+                            text = tag.name,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
                         )
+                    },
+                    colors = FilterChipDefaults.filterChipColors(
+                        disabledContainerColor = MaterialTheme.colorScheme.onBackground,
+                        selectedContainerColor = Color(0xFFD4F56F),
+                        labelColor = MaterialTheme.colorScheme.surface,
+                        selectedLabelColor = Color.Black,
                     )
-                }
+                )
             }
         }
     }
@@ -604,17 +602,16 @@ fun DragHandle(): Unit {
 private fun updateUploadAnswersResponse(i: Int) {
     when (i) {
         0 -> {
-            if (allQuestions[0].countriesList != null)
-                uploadAnswersResponse.baseCountry = allQuestions[0].countriesList!![0]
+            if (allQuestions[0].countriesList != null) uploadAnswersResponse.baseCountry =
+                allQuestions[0].countriesList!![0]
         }
 
         1 -> {
-            if (allQuestions[1].tags != null)
-                for (tag in allQuestions[1].tags!!) {
-                    if (tag.isChecked) {
-                        uploadAnswersResponse.industry = tag.name
-                    }
+            if (allQuestions[1].tags != null) for (tag in allQuestions[1].tags!!) {
+                if (tag.isChecked) {
+                    uploadAnswersResponse.industry = tag.name
                 }
+            }
         }
 
         2 -> {
@@ -669,15 +666,14 @@ private fun updateUploadAnswersResponse(i: Int) {
         }
 
         7 -> {
-            if (allQuestions[7].tags != null)
-                for (tag in allQuestions[7].tags!!) {
-                    if (tag.isChecked && tag.name == "Yes") {
-                        uploadAnswersResponse.isChildrenDataCollected = true
-                    }
-                    if (tag.isChecked && tag.name == "No") {
-                        uploadAnswersResponse.isChildrenDataCollected = false
-                    }
+            if (allQuestions[7].tags != null) for (tag in allQuestions[7].tags!!) {
+                if (tag.isChecked && tag.name == "Yes") {
+                    uploadAnswersResponse.isChildrenDataCollected = true
                 }
+                if (tag.isChecked && tag.name == "No") {
+                    uploadAnswersResponse.isChildrenDataCollected = false
+                }
+            }
         }
 
         8 -> {

@@ -4,7 +4,7 @@ import androidx.compose.runtime.remember
 import com.example.datencechatbotapp.models.QuestionItem
 import com.example.datencechatbotapp.models.TagItem
 
-var AllQuestionItems  =
+val AllQuestionItems  =
     listOf(
         QuestionItem(
             1,
